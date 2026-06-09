@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eWAKA Track · Inventory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════ LOGIN PAGE ════════════════════ */
+#login-pg{position:fixed;inset:0;background:linear-gradient(135deg,#0d1117 0%,#1a2744 55%,#0d1117 100%);display:flex;align-items:center;justify-content:center;z-index:2000}
+.lp-card{background:#fff;border-radius:18px;padding:46px 42px;width:100%;max-width:390px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.lp-logo{text-align:center;margin-bottom:30px}
+.lp-logo .lp-ic{font-size:38px;margin-bottom:6px}
+.lp-logo h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#111827;margin:0 0 2px}
+.lp-logo p{font-size:11.5px;color:#6b7280;letter-spacing:.6px;text-transform:uppercase}
+.lp-f{margin-bottom:15px}
+.lp-f label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;letter-spacing:.3px}
+.lp-f input{width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .14s}
+.lp-f input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.lp-btn{width:100%;padding:12px;background:#f97316;color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .14s}
+.lp-btn:hover{background:#e8680a;transform:translateY(-1px);box-shadow:0 5px 14px rgba(249,115,22,.35)}
+.lp-err{display:none;color:#ef4444;font-size:12.5px;margin-top:10px;text-align:center;font-weight:500}
+.lp-hint{margin-top:18px;padding:11px 13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;font-size:11.5px;color:#6b7280;text-align:center;line-height:1.6}
+.lp-hint strong{color:#374151}
+
+/* ════════════════════ ROOT & RESET ════════════════════ */
+:root{
+  --sb:#111827;--sb-w:242px;--acc:#f97316;--acc-d:rgba(249,115,22,.12);
+  --bg:#f2f4f8;--card:#ffffff;--bdr:#e2e8f0;--txt:#111827;
+  --muted:#6b7280;--light:#9ca3af;--ok:#22c55e;--warn:#f59e0b;
+  --err:#ef4444;--info:#3b82f6;--r:10px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --shm:0 4px 16px rgba(0,0,0,.10);
+  --fB:'DM Sans',sans-serif;--fH:'Syne',sans-serif;--fM:'Space Mono',monospace
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fB);background:var(--bg);color:var(--txt);display:flex;min-height:100vh;overflow-x:hidden}
+
+/* ════════════════════ SIDEBAR ════════════════════ */
+.sb{width:var(--sb-w);min-height:100vh;background:var(--sb);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;transition:transform .25s ease}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-logo .lico{font-size:22px;margin-bottom:3px}
+.sb-logo h1{font-family:var(--fH);font-size:16px;font-weight:800;color:#52f044;letter-spacing:-.3px}
+.sb-logo p{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+.sb-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-sec{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.22);padding:10px 8px 5px}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:7px;color:rgba(255,255,255,.55);cursor:pointer;transition:all .14s;font-size:13.5px;font-weight:500;border:none;background:none;width:100%;text-align:left}
+.ni:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.88)}
+.ni.on{background:var(--acc-d);color:var(--acc)}
+.ni .ico{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+
+/* DB STATUS */
+.db-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:7px;margin:4px 10px 2px;font-size:11px;color:rgba(255,255,255,.45)}
+.db-dot{width:7px;height:7px;border-radius:50%;background:#ef4444;flex-shrink:0;transition:background .3s;box-shadow:0 0 5px currentColor}
+.db-dot.live{background:#22c55e}
+.db-sync{background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:12px;padding:2px;margin-left:auto;transition:color .14s}
+.db-sync:hover{color:rgba(255,255,255,.7)}
+
+/* USER BAR */
+.sb-user{display:flex;align-items:center;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,.07)}
+.u-av{width:28px;height:28px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.u-info{flex:1;min-width:0}
+.u-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.u-role{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px}
+.u-out{background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:16px;padding:3px;transition:color .14s}
+.u-out:hover{color:#ef4444}
+
+/* ════════════════════ MAIN ════════════════════ */
+.main{margin-left:var(--sb-w);flex:1;padding:28px 30px;max-width:calc(100vw - var(--sb-w))}
+.pg{display:none}.pg.on{display:block}
+.ph{margin-bottom:24px}
+.ph .bc{font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.2px}
+.ph h2{font-family:var(--fH);font-size:24px;font-weight:800;color:var(--txt);letter-spacing:-.4px}
+.ph p{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* ════════════════════ CARDS ════════════════════ */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);box-shadow:var(--sh);padding:20px;margin-bottom:16px}
+.ct{font-family:var(--fH);font-size:14px;font-weight:700;margin-bottom:14px;color:var(--txt);display:flex;align-items:center;gap:7px}
+
+/* ════════════════════ STOCK IN/OUT CARDS ════════════════════ */
+.sio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
+.sio-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.sio-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sio-row{display:flex;gap:8px}
+.sio-h{flex:1;text-align:center;padding:10px 6px;border-radius:7px}
+.sio-h.in{background:#f0fdf4}.sio-h.out{background:#eff6ff}
+.sio-n{font-family:var(--fH);font-size:26px;font-weight:800;line-height:1}
+.sio-h.in .sio-n{color:#16a34a}.sio-h.out .sio-n{color:#1d4ed8}
+.sio-l{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.sio-h.in .sio-l{color:#15803d}.sio-h.out .sio-l{color:#1e40af}
+
+/* DISPATCH PILLS */
+.dsp-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.pill{padding:5px 13px;border-radius:20px;font-size:11.5px;font-weight:600;border:1.5px solid var(--bdr);background:var(--card)}
+.pill span{font-family:var(--fH);font-size:15px;margin-right:4px}
+
+/* ════════════════════ STAT CARDS (legacy) ════════════════════ */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:16px}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--scol,var(--acc))}
+.sc .sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.sc .sv{font-family:var(--fH);font-size:28px;font-weight:800;color:var(--txt);line-height:1}
+.sc .ss{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* ════════════════════ FORMS ════════════════════ */
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.fi{display:flex;flex-direction:column;gap:5px}
+.fi.fw{grid-column:1/-1}
+label{font-size:12.5px;font-weight:600;color:var(--txt)}
+label .req{color:var(--err);margin-left:2px}
+input,select,textarea{font-family:var(--fB);font-size:13.5px;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:7px;background:#f9fafb;color:var(--txt);transition:border-color .14s,box-shadow .14s;width:100%;outline:none;appearance:auto}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-d);background:#fff}
+input[readonly]{background:#f3f4f6;color:var(--muted);cursor:default}
+input.mn,td.mn{font-family:var(--fM);font-size:12px;letter-spacing:.3px}
+.cb{display:flex;gap:7px;align-items:flex-end}
+.cb select{flex:1.3}.cb input{flex:1}
+.cb .ch{padding:9px 3px;color:var(--light);font-size:16px;line-height:1;flex-shrink:0}
+.cp{font-family:var(--fM);font-size:11.5px;padding:6px 11px;background:#f3f4f6;border-radius:6px;color:var(--muted);margin-top:5px;letter-spacing:.4px;min-height:28px}
+.cp span{color:var(--acc);font-weight:700}.cp em{opacity:.4;font-style:normal}
+
+/* DATE ROW with Today button */
+.dr{display:flex;gap:6px;align-items:center}
+.dr input{flex:1}
+.tdy{font-family:var(--fB);font-size:11px;font-weight:700;padding:9px 10px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--bg);color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .14s}
+.tdy:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* ════════════════════ BUTTONS ════════════════════ */
+.btn{font-family:var(--fB);font-size:13.5px;font-weight:600;padding:10px 20px;border-radius:7px;border:none;cursor:pointer;transition:all .14s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.bp{background:var(--acc);color:#fff}.bp:hover{background:#e8680a;transform:translateY(-1px);box-shadow:0 4px 12px rgba(249,115,22,.3)}
+.bs{background:var(--bg);color:var(--txt);border:1.5px solid var(--bdr)}.bs:hover{background:#e5e9f0}
+.bk{background:var(--ok);color:#fff}.bk:hover{background:#16a34a}
+.be{background:var(--err);color:#fff}.be:hover{background:#dc2626}
+.bw{background:var(--warn);color:#fff}.bw:hover{background:#d97706}
+.sm{font-size:12px;padding:7px 12px}
+.bg{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+
+/* ════════════════════ TABS ════════════════════ */
+.tb{display:flex;gap:3px;border-bottom:2px solid var(--bdr);margin-bottom:18px}
+.tbb{font-family:var(--fB);font-size:13.5px;font-weight:500;padding:8px 15px;border:none;background:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .14s;border-radius:6px 6px 0 0}
+.tbb:hover{color:var(--txt)}.tbb.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:700}
+.tp{display:none}.tp.on{display:block}
+
+/* ════════════════════ BADGES ════════════════════ */
+.bdg{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.bdg::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.8}
+.b-un{background:#fef3c7;color:#92400e}.b-as{background:#d1fae5;color:#065f46}
+.b-di{background:#dbeafe;color:#1d4ed8}.b-re{background:#ede9fe;color:#5b21b6}
+.b-fa{background:#fee2e2;color:#991b1b}.b-nw{background:#ecfdf5;color:#166534}
+.b-sold{background:#fef9c3;color:#854d0e}.b-fleet{background:#e0f2fe;color:#075985}
+.b-leased{background:#fae8ff;color:#6b21a8}.b-office{background:#f1f5f9;color:#334155}
+
+/* ════════════════════ TABLE ════════════════════ */
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bdr)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);background:#f9fafb;border-bottom:1px solid var(--bdr)}
+td{padding:9px 13px;border-bottom:1px solid #f3f4f6;color:var(--txt)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.es{text-align:center;padding:32px 20px;color:var(--muted)}
+.es .ei{font-size:28px;margin-bottom:7px}.es p{font-size:13px}
+
+/* ════════════════════ TOAST ════════════════════ */
+#tc{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.tst{display:flex;align-items:center;gap:9px;padding:11px 16px;border-radius:9px;font-size:13px;font-weight:500;box-shadow:var(--shm);animation:tsIn .22s ease;min-width:220px;max-width:340px;background:#fff}
+.tst-ok{border-left:4px solid var(--ok)}.tst-er{border-left:4px solid var(--err)}
+.tst-wn{border-left:4px solid var(--warn)}.tst-in{border-left:4px solid var(--info)}
+@keyframes tsIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ════════════════════ MISC ════════════════════ */
+.srch{display:flex;gap:9px;align-items:center;margin-bottom:13px}
+.srch input{max-width:270px}
+.alt{padding:10px 14px;border-radius:8px;font-size:12.5px;display:flex;align-items:flex-start;gap:8px;margin-bottom:13px}
+.alt-in{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.alt-wn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.divr{height:1px;background:var(--bdr);margin:16px 0}
+.mbt{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--sb);border:none;color:#fff;width:38px;height:38px;border-radius:7px;font-size:17px;cursor:pointer;align-items:center;justify-content:center}
+.ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99}
+@media(max-width:780px){
+  .sb{transform:translateX(-100%)}.sb.open{transform:translateX(0)}
+  .main{margin-left:0;padding:16px 14px;padding-top:62px;max-width:100vw}
+  .mbt{display:flex}.ovl.show{display:block}
+  .sio-grid{grid-template-columns:1fr 1fr}
+  .sg{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN PAGE ══════════ -->
+<div id="login-pg">
+  <div class="lp-card">
+    <div class="lp-logo">
+      <div class="lp-ic">🏍️</div>
+      <h1>eWAKA Track</h1>
+      <p>Inventory System</p>
+    </div>
+    <div class="lp-f">
+      <label>USERNAME</label>
+      <input type="text" id="lp-user" placeholder="Enter username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="lp-f">
+      <label>PASSWORD</label>
+      <input type="password" id="lp-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="lp-btn" onclick="doLogin()">Sign In →</button>
+    <div class="lp-err" id="lp-err">❌ Invalid username or password</div>
+    <div class="lp-hint">Demo accounts:<br><strong>admin</strong> / admin123 &nbsp;·&nbsp; <strong>staff</strong> / staff2025</div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app" style="display:none">
+
+<button class="mbt" onclick="mbtClick()">☰</button>
+<div class="ovl" id="ovl" onclick="sbClose()"></div>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sb" id="sb">
+  <div class="sb-logo">
+    <div class="lico">🏍️</div>
+    <h1>eWAKA Track</h1>
+    <p>Inventory System</p>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Overview</div>
+    <button class="ni on" id="n-dash" onclick="go('dash')"><span class="ico">📊</span>Dashboard</button>
+    <div class="sb-sec">Inventory</div>
+    <button class="ni" id="n-add" onclick="go('add')"><span class="ico">📦</span>Add Stock</button>
+    <button class="ni" id="n-disp" onclick="go('disp')"><span class="ico">🚚</span>Dispatch Stock</button>
+    <button class="ni" id="n-asm" onclick="go('asm')"><span class="ico">🔧</span>Bike Assembly</button>
+    <div class="sb-sec">Data</div>
+    <button class="ni" id="n-rec" onclick="go('rec')"><span class="ico">📋</span>All Records</button>
+  </nav>
+  <!-- DB STATUS -->
+  <div class="db-bar">
+    <div class="db-dot" id="db-dot"></div>
+    <span id="db-lbl">Connecting…</span>
+    <button class="db-sync" onclick="dbRetry()" title="Retry connection">↻</button>
+  </div>
+  <!-- USER -->
+  <div class="sb-user">
+    <div class="u-av" id="u-av">A</div>
+    <div class="u-info">
+      <div class="u-name" id="u-name">Admin</div>
+      <div class="u-role" id="u-role">Admin</div>
+    </div>
+    <button class="u-out" onclick="doLogout()" title="Logout">⏻</button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════ MAIN ══════════════════════════ -->
+<main class="main">
+
+<!-- ──────────────────── DASHBOARD ──────────────────── -->
+<div class="pg on" id="pg-dash">
+  <div class="ph">
+    <div class="bc">Home</div>
+    <h2>📊 Dashboard</h2>
+    <p>Live overview of stock in, stock out, and fleet status.</p>
+  </div>
+  <!-- STOCK IN / OUT CARDS -->
+  <div class="sio-grid" id="sio-grid"></div>
+  <!-- DISPATCH BREAKDOWN PILLS -->
+  <div class="dsp-pills" id="dsp-pills"></div>
+  <!-- SUMMARY STAT CARDS -->
+  <div class="sg" id="sg"></div>
+  <!-- RECENT ACTIVITY -->
+  <div class="card"><div class="ct">🕐 Recent Stock Activity</div><div id="d-act"></div></div>
+  <!-- FLEET BY MODEL -->
+  <div class="card"><div class="ct">🏍️ Bikes — Stock In / Out by Model</div><div id="d-fleet"></div></div>
+  <!-- ACCESSORIES BY MODEL -->
+  <div class="card"><div class="ct">🔋⚡ Accessories — In / Out by Model</div><div id="d-acc"></div></div>
+</div>
+
+<!-- ──────────────────── ADD STOCK ──────────────────── -->
+<div class="pg" id="pg-add">
+  <div class="ph">
+    <div class="bc">Inventory → Add Stock</div>
+    <h2>📦 Add to Inventory</h2>
+    <p>Register bikes, batteries, or chargers arriving at the warehouse.</p>
+  </div>
+  <div class="card">
+    <div class="tb">
+      <button class="tbb on" onclick="stab('add','bike',this)">🏍️ Bike</button>
+      <button class="tbb" onclick="stab('add','bat',this)">🔋 Battery</button>
+      <button class="tbb" onclick="stab('add','chg',this)">⚡ Charger</button>
+    </div>
+
+    <!-- ── ADD BIKE ── -->
+    <div class="tp on" id="add-bike">
+      <div class="fg">
+        <div class="fi">
+          <label>Bike Type <span class="req">*</span></label>
+          <select id="a-btype" onchange="updPfx()">
+            <option value="">— Select type —</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Status <span class="req">*</span></label>
+          <select id="a-bstat" onchange="toggleAddStatus()">
+            <option value="">— Select status —</option>
+            <option value="New">New</option>
+            <option value="Returned">Returned</option>
+          </select>
+        </div>
+        <div class="fi" id="add-asm-wrap" style="display:none">
+          <label>Assembly Status <span class="req">*</span></label>
+          <select id="a-assembly">
+            <option value="">— Select —</option>
+            <option value="Unassembled">Unassembled</option>
+            <option value="Assembled">Assembled</option>
+          </select>
+        </div>
+        <div class="fi" id="add-ret-wrap" style="display:none">
+          <label>Return Reason <span class="req">*</span></label>
+          <select id="a-return-reason">
+            <option value="">— Select reason —</option>
+            <option>Faulty</option>
+            <option>Contract Renewal</option>
+            <option>Repair</option>
+          </select>
+        </div>
+        <div class="fi fw">
+          <label>Chassis Number <span class="req">*</span></label>
+          <div class="cb">
+            <select id="a-cpfx" onchange="updCp()"><option value="">— prefix —</option></select>
+            <span class="ch">＋</span>
+            <input type="text" id="a-csfx" class="mn" placeholder="remaining digits" oninput="this.value=this.value.toUpperCase();updCp()">
+          </div>
+          <div class="cp" id="a-cprev">Full chassis number will appear here</div>
+        </div>
+        <div class="fi fw">
+          <label>Number Plate</label>
+          <div class="cb">
+            <select id="a-ppfx" onchange="updPp()"><option value="">— prefix —</option></select>
+            <span class="ch">＋</span>
+            <input type="text" id="a-psfx" class="mn" placeholder="plate digits" oninput="this.value=this.value.toUpperCase();updPp()">
+          </div>
+          <div class="cp" id="a-pprev">Number plate will appear here</div>
+        </div>
+        <div class="fi">
+          <label>Date In <span class="req">*</span></label>
+          <div class="dr"><input type="date" id="a-bdate"><button class="tdy" onclick="setToday('a-bdate')">📅 Today</button></div>
+        </div>
+      </div>
+      <div class="bg">
+        <button class="btn bp" onclick="addBike()">➕ Add Bike</button>
+        <button class="btn bs" onclick="resetBike()">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- ── ADD BATTERY ── -->
+    <div class="tp" id="add-bat">
+      <div class="fg">
+        <div class="fi">
+          <label>Battery Type <span class="req">*</span></label>
+          <select id="a-batype" onchange="togglejembeBatFields()">
+            <option value="">— Select type —</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+          </select>
+        </div>
+        <div class="fi" id="a-battery-fin-wrap" style="display:none">
+          <label>Battery Option <span class="req">*</span></label>
+          <select id="a-bat-fin-wrap" >
+            <option value="">— Select option —</option>
+            <option>First</option><option>Extra</option>
+            
+          </select>
+        </div>
+       
+        <div class="fi">
+          <label>Status <span class="req">*</span></label>
+          <select id="d-battery-status" onchange="toggleBatFields()">
+            <option value="">— Select status —</option>
+            <option value="New">New</option>
+            <option value="Returned">Returned</option>
+          </select>
+        </div>
+        <div class="fi" id="bat-assess-wrap" style="display:none">
+          <label>Assessment Status</label>
+          <select id="d-battery-assessment">
+            <option value="">— Select —</option>
+            <option>Assessed</option><option>Not Assessed</option>
+          </select>
+        </div>
+        <div class="fi" id="bat-return-wrap" style="display:none">
+          <label>Return Reason</label>
+          <select id="d-battery-return">
+            <option value="">— Select reason —</option>
+            <option>Faulty</option><option>Contract Renewal</option><option>Repair</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Battery Number <span class="req">*</span></label>
+          <input type="text" id="a-banum" class="mn" placeholder="e.g. BAT-001" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="fi">
+          <label>Date In <span class="req">*</span></label>
+          <div class="dr"><input type="date" id="a-badate"><button class="tdy" onclick="setToday('a-badate')">📅 Today</button></div>
+        </div>
+      </div>
+      <div class="bg">
+        <button class="btn bp" onclick="addBat()">➕ Add Battery</button>
+        <button class="btn bs" onclick="resetBat()">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- ── ADD CHARGER ── -->
+    <div class="tp" id="add-chg">
+      <div class="fg">
+        <div class="fi">
+          <label>Charger Type <span class="req">*</span></label>
+          <select id="a-ctype">
+            <option value="">— Select type —</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Status <span class="req">*</span></label>
+          <select id="d-charger-status" onchange="toggleChgFields()">
+            <option value="">— Select status —</option>
+            <option value="New">New</option>
+            <option value="Returned">Returned</option>
+          </select>
+        </div>
+        <div class="fi" id="chg-inspect-wrap" style="display:none">
+          <label>Inspection Status</label>
+          <select id="d-charger-assessment">
+            <option value="">— Select —</option>
+            <option>Tested</option><option>Not Tested</option>
+          </select>
+        </div>
+        <div class="fi" id="chg-return-wrap" style="display:none">
+          <label>Return Reason</label>
+          <select id="d-charger-return">
+            <option value="">— Select reason —</option>
+            <option>Faulty</option><option>Contract Renewal</option><option>Repair</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Charger Number <span class="req">*</span></label>
+          <input type="text" id="a-cnum" class="mn" placeholder="e.g. CHG-001" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="fi">
+          <label>Date In <span class="req">*</span></label>
+          <div class="dr"><input type="date" id="a-cdate"><button class="tdy" onclick="setToday('a-cdate')">📅 Today</button></div>
+        </div>
+      </div>
+      <div class="bg">
+        <button class="btn bp" onclick="addChg()">➕ Add Charger</button>
+        <button class="btn bs" onclick="resetChg()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────── DISPATCH STOCK ──────────────────── -->
+<div class="pg" id="pg-disp">
+  <div class="ph">
+    <div class="bc">Inventory → Dispatch Stock</div>
+    <h2>🚚 Dispatch Stock</h2>
+    <p>Send bikes, batteries, and chargers to clients, fleets, or offices.</p>
+  </div>
+  <div class="card">
+    <div class="tb">
+      <button class="tbb on" onclick="stab('disp','bike',this);refreshDispBikeSel()">🏍️ Bike</button>
+      <button class="tbb" onclick="stab('disp','bat',this);refreshDispBatSel()">🔋 Battery</button>
+      <button class="tbb" onclick="stab('disp','chg',this);refreshDispChgSel()">⚡ Charger</button>
+    </div>
+
+    <!-- ════ BIKE DISPATCH (prefix: db-) ════ -->
+    <div class="tp on" id="disp-bike">
+      <div class="fg">
+        <div class="fi">
+          <label>Filter by Bike Type</label>
+          <select id="db-type" onchange="refreshDispBikeSel()">
+            <option value="">— All types —</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Dispatch Status <span class="req">*</span></label>
+          <select id="db-stat" onchange="toggleBikeDisp()">
+            <option value="">— Select status —</option>
+            <option>Sold</option><option>Fleet</option><option>Leased</option>
+            <option>Repaired</option><option>In-Office</option>
+          </select>
+        </div>
+        <div class="fi fw">
+          <label>Select Assembled Bike <span class="req">*</span></label>
+          <select id="db-sel" onchange="fillBikeDisp()">
+            <option value="">— Choose chassis number —</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Bike Type (auto)</label>
+          <input type="text" id="db-atype" readonly placeholder="Auto-filled">
+        </div>
+        <div class="fi">
+          <label>Number Plate (auto)</label>
+          <input type="text" id="db-plate" readonly class="mn" placeholder="Auto-filled">
+        </div>
+        <!-- Conditional fields – db- prefix -->
+        <div class="fi" id="db-sold-wrap" style="display:none">
+          <label>Sold Type <span class="req">*</span></label>
+          <select id="db-sold-type" onchange="toggleBikeFinance()">
+            <option value="">— Select —</option>
+            <option>Outright</option><option>Financing</option>
+          </select>
+        </div>
+        <div class="fi" id="db-fin-wrap" style="display:none">
+          <label>Financing Company <span class="req">*</span></label>
+          <select id="db-finance">
+            <option value="">— Select company —</option>
+            <option>Fortune</option><option>FlashPesa</option>
+            <option>eWAKA</option><option>Watu Credit</option><option>Rafiki Bank</option>
+          </select>
+        </div>
+        <div class="fi" id="db-lease-wrap" style="display:none">
+          <label>Leasing Type <span class="req">*</span></label>
+          <select id="db-lease-type">
+            <option value="">— Select —</option>
+            <option>Full Logistics</option><option>Vendor</option>
+          </select>
+        </div>
+        <div class="fi fw" id="db-client-wrap" style="display:none">
+          <label>Client / Vendor Name <span class="req">*</span></label>
+          <input type="text" id="db-client" placeholder="Enter client or vendor name">
+        </div>
+        <div class="fi" id="db-office-wrap" style="display:none">
+          <label>Office Location <span class="req">*</span></label>
+          <select id="db-office-loc">
+            <option value="">— Select office —</option>
+            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option>
+          </select>
+        </div>
+        <div class="fi" id="db-office-pur-wrap" style="display:none">
+          <label>Office Purpose <span class="req">*</span></label>
+          <select id="db-office-pur">
+            <option value="">— Select purpose —</option>
+            <option>Awaiting Sale</option><option>Test Bike</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Date Dispatched <span class="req">*</span></label>
+          <div class="dr"><input type="date" id="db-date"><button class="tdy" onclick="setToday('db-date')">📅 Today</button></div>
+        </div>
+      </div>
+      <div class="bg">
+        <button class="btn bp" onclick="doDispBike()">🚚 Dispatch Bike</button>
+        <button class="btn bs" onclick="clrBikeDisp()">↺ Clear</button>
+      </div>
+    </div>
+
+    <!-- ════ BATTERY DISPATCH (prefix: dba-) ════ -->
+    <div class="tp" id="disp-bat">
+      <div class="fg">
+        <div class="fi">
+          <label>Filter by Battery Type</label>
+          <select id="dba-type" onchange="refreshDispBatSel()">
+            <option value="">— All types —</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Dispatch Status <span class="req">*</span></label>
+          <select id="dba-stat" onchange="toggleBatDisp()">
+            <option value="">— Select status —</option>
+            <option>Sold</option><option>Fleet</option><option>Leased</option>
+            <option>Repaired</option><option>In-Office</option>
+          </select>
+        </div>
+        <div class="fi fw">
+          <label>Select Battery <span class="req">*</span></label>
+          <select id="dba-sel">
+            <option value="">— Choose battery number —</option>
+          </select>
+        </div>
+        <div class="fi" id="dba-sold-wrap" style="display:none">
+          <label>Sold Type <span class="req">*</span></label>
+          <select id="dba-sold-type" onchange="toggleBatFinance()">
+            <option value="">— Select —</option>
+            <option>Outright</option><option>Financing</option>
+          </select>
+        </div>
+        <div class="fi" id="dba-fin-wrap" style="display:none">
+          <label>Financing Company</label>
+          <select id="dba-finance">
+            <option value="">— Select —</option>
+            <option>Fortune</option><option>FlashPesa</option>
+            <option>eWAKA</option><option>Watu Credit</option><option>Rafiki Bank</option>
+          </select>
+        </div>
+        <div class="fi" id="dba-lease-wrap" style="display:none">
+          <label>Leasing Type <span class="req">*</span></label>
+          <select id="dba-lease-type">
+            <option value="">— Select —</option>
+            <option>Full Logistics</option><option>Vendor</option>
+          </select>
+        </div>
+        <div class="fi fw" id="dba-client-wrap" style="display:none">
+          <label>Client / Vendor Name <span class="req">*</span></label>
+          <input type="text" id="dba-client" placeholder="Client or vendor name">
+        </div>
+        <div class="fi" id="dba-office-wrap" style="display:none">
+          <label>Office Location <span class="req">*</span></label>
+          <select id="dba-office-loc">
+            <option value="">— Select —</option>
+            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option>
+          </select>
+        </div>
+        <div class="fi" id="dba-office-pur-wrap" style="display:none">
+          <label>Office Purpose</label>
+          <select id="dba-office-pur">
+            <option value="">— Select —</option>
+            <option>Awaiting Sale</option><option>Test Battery</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Date Dispatched <span class="req">*</span></label>
+          <div class="dr"><input type="date" id="dba-date"><button class="tdy" onclick="setToday('dba-date')">📅 Today</button></div>
+        </div>
+      </div>
+      <div class="bg">
+        <button class="btn bp" onclick="doDispBat()">🚚 Dispatch Battery</button>
+        <button class="btn bs" onclick="clrBatDisp()">↺ Clear</button>
+      </div>
+    </div>
+
+    <!-- ════ CHARGER DISPATCH (prefix: dch-) ════ -->
+    <div class="tp" id="disp-chg">
+      <div class="fg">
+        <div class="fi">
+          <label>Filter by Charger Type</label>
+          <select id="dch-type" onchange="refreshDispChgSel()">
+            <option value="">— All types —</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Dispatch Status <span class="req">*</span></label>
+          <select id="dch-stat" onchange="toggleChgDisp()">
+            <option value="">— Select status —</option>
+            <option>Sold</option><option>Fleet</option><option>Leased</option>
+            <option>Repaired</option><option>In-Office</option>
+          </select>
+        </div>
+        <div class="fi fw">
+          <label>Select Charger <span class="req">*</span></label>
+          <select id="dch-sel">
+            <option value="">— Choose charger number —</option>
+          </select>
+        </div>
+        <div class="fi" id="dch-sold-wrap" style="display:none">
+          <label>Sold Type <span class="req">*</span></label>
+          <select id="dch-sold-type" onchange="toggleChgFinance()">
+            <option value="">— Select —</option>
+            <option>Outright</option><option>Financing</option>
+          </select>
+        </div>
+        <div class="fi" id="dch-fin-wrap" style="display:none">
+          <label>Financing Company</label>
+          <select id="dch-finance">
+            <option value="">— Select —</option>
+            <option>Fortune</option><option>FlashPesa</option>
+            <option>eWAKA</option><option>Watu Credit</option><option>Rafiki Bank</option>
+          </select>
+        </div>
+        <div class="fi" id="dch-lease-wrap" style="display:none">
+          <label>Leasing Type <span class="req">*</span></label>
+          <select id="dch-lease-type">
+            <option value="">— Select —</option>
+            <option>Full Logistics</option><option>Vendor</option>
+          </select>
+        </div>
+        <div class="fi fw" id="dch-client-wrap" style="display:none">
+          <label>Client / Vendor Name <span class="req">*</span></label>
+          <input type="text" id="dch-client" placeholder="Client or vendor name">
+        </div>
+        <div class="fi" id="dch-office-wrap" style="display:none">
+          <label>Office Location <span class="req">*</span></label>
+          <select id="dch-office-loc">
+            <option value="">— Select —</option>
+            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option><option></option>
+          </select>
+        </div>
+        <div class="fi" id="dch-office-pur-wrap" style="display:none">
+          <label>Office Purpose</label>
+          <select id="dch-office-pur">
+            <option value="">— Select —</option>
+            <option>Awaiting Sale</option><option>Test Charger</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Date Dispatched <span class="req">*</span></label>
+          <div class="dr"><input type="date" id="dch-date"><button class="tdy" onclick="setToday('dch-date')">📅 Today</button></div>
+        </div>
+      </div>
+      <div class="bg">
+        <button class="btn bp" onclick="doDispChg()">🚚 Dispatch Charger</button>
+        <button class="btn bs" onclick="clrChgDisp()">↺ Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISPATCHED RECORDS TABLE -->
+  <div class="card">
+    <div class="ct">📋 Dispatched Items</div>
+    <div class="tb">
+      <button class="tbb on" onclick="stab('dr','bikes',this)">🏍️ Bikes</button>
+      <button class="tbb" onclick="stab('dr','bats',this)">🔋 Batteries</button>
+      <button class="tbb" onclick="stab('dr','chgs',this)">⚡ Chargers</button>
+    </div>
+    <div class="tp on" id="dr-bikes">
+      <div class="srch">
+        <input type="text" id="dr-sbk" placeholder="Search dispatched bikes…" oninput="renDispBkTbl()">
+        <button class="btn bs sm" onclick="xport('dispatched-bikes')">⬇ Export CSV</button>
+      </div>
+      <div class="tw" id="dr-bktbl"></div>
+    </div>
+    <div class="tp" id="dr-bats">
+      <div class="srch">
+        <input type="text" id="dr-sba" placeholder="Search dispatched batteries…" oninput="renDispBaTbl()">
+        <button class="btn bs sm" onclick="xport('dispatched-bats')">⬇ Export CSV</button>
+      </div>
+      <div class="tw" id="dr-batbl"></div>
+    </div>
+    <div class="tp" id="dr-chgs">
+      <div class="srch">
+        <input type="text" id="dr-sch" placeholder="Search dispatched chargers…" oninput="renDispChTbl()">
+        <button class="btn bs sm" onclick="xport('dispatched-chgs')">⬇ Export CSV</button>
+      </div>
+      <div class="tw" id="dr-chtbl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────── ASSEMBLY ──────────────────── -->
+<div class="pg" id="pg-asm">
+  <div class="ph">
+    <div class="bc">Inventory → Bike Assembly</div>
+    <h2>🔧 Bike Assembly</h2>
+    <p>Move bikes through the assembly queue and mark them ready for dispatch.</p>
+  </div>
+  <div class="card">
+    <div class="ct">⚙️ Mark Bike as Assembled</div>
+    <div class="fg">
+      <div class="fi">
+        <label>Select Unassembled Bike <span class="req">*</span></label>
+        <select id="as-sel" onchange="fillAsm()">
+          <option value="">— Choose chassis number —</option>
+        </select>
+      </div>
+      <div class="fi">
+        <label>Bike Type (auto)</label>
+        <input type="text" id="as-btype" readonly placeholder="Auto-filled">
+      </div>
+      <div class="fi">
+        <label>Technician Name <span class="req">*</span></label>
+        <input type="text" id="as-tech" placeholder="Full name">
+      </div>
+      <div class="fi">
+        <label>Date Assembled <span class="req">*</span></label>
+        <div class="dr"><input type="date" id="as-date"><button class="tdy" onclick="setToday('as-date')">📅 Today</button></div>
+      </div>
+      <div class="fi fw">
+        <label>Assembly Notes</label>
+        <textarea id="as-notes" rows="2" placeholder="Optional notes…" style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="bg">
+      <button class="btn bk" onclick="asmBike()">✅ Mark as Assembled</button>
+      <button class="btn bs" onclick="clrAsm()">↺ Clear</button>
+    </div>
+  </div>
+  <div class="card"><div class="ct">⏳ Unassembled Queue</div><div class="tw" id="as-un"></div></div>
+  <div class="card"><div class="ct">✅ Assembled — Ready to Dispatch</div><div class="tw" id="as-ok"></div></div>
+</div>
+
+<!-- ──────────────────── RECORDS ──────────────────── -->
+<div class="pg" id="pg-rec">
+  <div class="ph">
+    <div class="bc">Data → All Records</div>
+    <h2>📋 All Records</h2>
+    <p>Full searchable inventory across bikes, batteries, and chargers.</p>
+  </div>
+  <div class="card">
+    <div class="tb">
+      <button class="tbb on" onclick="stab('rec','bikes',this)">🏍️ Bikes</button>
+      <button class="tbb" onclick="stab('rec','bats',this)">🔋 Batteries</button>
+      <button class="tbb" onclick="stab('rec','chgs',this)">⚡ Chargers</button>
+    </div>
+    <div class="tp on" id="rec-bikes">
+      <div class="srch">
+        <input type="text" id="r-sbk" placeholder="Search bikes…" oninput="renBkTbl()">
+        <button class="btn bs sm" onclick="xport('bikes')">⬇ Export CSV</button>
+        <button class="btn bs sm" onclick="trigImp('bikes')">⬆ Import CSV</button>
+      </div>
+      <div class="tw" id="r-bktbl"></div>
+    </div>
+    <div class="tp" id="rec-bats">
+      <div class="srch">
+        <input type="text" id="r-sba" placeholder="Search batteries…" oninput="renBaTbl()">
+        <button class="btn bs sm" onclick="xport('batteries')">⬇ Export CSV</button>
+        <button class="btn bs sm" onclick="trigImp('batteries')">⬆ Import CSV</button>
+      </div>
+      <div class="tw" id="r-batbl"></div>
+    </div>
+    <div class="tp" id="rec-chgs">
+      <div class="srch">
+        <input type="text" id="r-sch" placeholder="Search chargers…" oninput="renChTbl()">
+        <button class="btn bs sm" onclick="xport('chargers')">⬇ Export CSV</button>
+        <button class="btn bs sm" onclick="trigImp('chargers')">⬆ Import CSV</button>
+      </div>
+      <div class="tw" id="r-chtbl"></div>
+    </div>
+  </div>
+  <div class="card" style="border-color:#fee2e2">
+    <div class="ct" style="color:var(--err)">⚠️ Data Management</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn bs sm" onclick="xport('all')">⬇ Export All (JSON)</button>
+      <button class="btn bs sm" onclick="trigImp('json')">⬆ Restore from JSON</button>
+      <button class="btn be sm" onclick="clearAll()">🗑 Clear All Data</button>
+    </div>
+  </div>
+</div>
+
+</main>
+</div><!-- end #app -->
+
+<div id="tc"></div>
+<input type="file" id="imp-inp" accept=".csv,.json" style="display:none" onchange="doImport(this)">
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  DATABASE CONFIG — replace with your real DigitalOcean creds
+//  NOTE: This HTML uses a REST API at DB_CONFIG.api
+//  Falls back to localStorage when the backend is unreachable.
+// ══════════════════════════════════════════════════════════════
+const DB_CONFIG = {
+  host:     '64.226.72.183',
+  port:     5432,
+  database: 'ekdb',
+  user:     'ekadmin',
+  password: 'StrongPGPass123',
+  ssl:      true,
+  api:      'http://localhost:3000/api'
+  // Auto-detect: works whether opened as file:// or served by Express
+  // api: (window.location.protocol === 'file:' ? 'http://localhost:3000/api' : window.location.origin) + '/api'
+};
+
+// ── DB CLIENT ──────────────────────────────────────────────
+const DB = {
+  live: false,
+  async init(){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 3000);
+      const r = await fetch(`${DB_CONFIG.api}/health`, {signal: ctrl.signal});
+      clearTimeout(t);
+      this.live = r.ok;
+    }catch{ this.live = false; }
+    this._setDot();
+  },
+  async retry(){
+    toast('Retrying DB connection…','in');
+    await this.init();
+    if(this.live){ await syncFromDB(); }
+    else { toast('Still offline — using local cache','wn'); }
+  },
+  _setDot(){
+    const d=document.getElementById('db-dot'), l=document.getElementById('db-lbl');
+    if(d) d.classList.toggle('live', this.live);
+    if(l) l.textContent = this.live ? 'DB Connected' : 'Offline Mode';
+  },
+  // POST — upsert a record; surfaces DB errors as a toast
+  async post(ep, data){
+    if(!this.live){ console.warn('DB offline — POST skipped:', ep); return null; }
+    try{
+      const r=await fetch(`${DB_CONFIG.api}/${ep}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      if(!r.ok){ const e=await r.json().catch(()=>({error:'HTTP '+r.status})); toast(`⚠️ Save failed (${ep}): ${e.error}`,'wn'); console.error('POST',ep,e); return null; }
+      return await r.json();
+    }catch(e){ console.error('POST',ep,e); return null; }
+  },
+  // PUT — update a record; surfaces DB errors as a toast
+  async put(ep, id, data){
+    if(!this.live){ console.warn('DB offline — PUT skipped:', ep, id); return null; }
+    try{
+      const r=await fetch(`${DB_CONFIG.api}/${ep}/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      if(!r.ok){ const e=await r.json().catch(()=>({error:'HTTP '+r.status})); toast(`⚠️ Update failed (${ep}/${id}): ${e.error}`,'wn'); console.error('PUT',ep,id,e); return null; }
+      return await r.json();
+    }catch(e){ console.error('PUT',ep,id,e); return null; }
+  },
+  async getAll(ep){
+    if(!this.live) return null;
+    try{ const r=await fetch(`${DB_CONFIG.api}/${ep}`); return r.ok?await r.json():null; }catch{ return null; }
+  }
+};
+function dbRetry(){ DB.retry(); }
+
+// ══════════════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════════════
+const USERS=[
+  {u:'admin',   p:'admin123',  name:'Admin User',       role:'Admin'},
+  {u:'staff',   p:'staff2025', name:'Inventory Staff',  role:'Staff'}
+];
+const SESS_KEY='ewaka_sess';
+const SESS_TTL=8*60*60*1000; // 8 hours
+
+function doLogin(){
+  const u=document.getElementById('lp-user').value.trim();
+  const p=document.getElementById('lp-pass').value;
+  const found=USERS.find(x=>x.u===u&&x.p===p);
+  if(!found){ document.getElementById('lp-err').style.display='block'; return; }
+  document.getElementById('lp-err').style.display='none';
+  localStorage.setItem(SESS_KEY,JSON.stringify({...found,ts:Date.now()}));
+  showApp(found);
+}
+function getSession(){
+  try{
+    const s=localStorage.getItem(SESS_KEY);
+    if(!s) return null;
+    const sess=JSON.parse(s);
+    if(Date.now()-sess.ts>SESS_TTL){ localStorage.removeItem(SESS_KEY); return null; }
+    return sess;
+  }catch{ return null; }
+}
+async function showApp(sess){
+  document.getElementById('login-pg').style.display='none';
+  document.getElementById('app').style.display='';
+  document.getElementById('u-name').textContent=sess.name;
+  document.getElementById('u-role').textContent=sess.role;
+  document.getElementById('u-av').textContent=sess.name[0].toUpperCase();
+  go('dash');                  // render immediately from whatever is in localStorage
+  await DB.init();             // attempt DB connection (3-second timeout)
+  if(DB.live) await syncFromDB(); // pull the full DB into localStorage, then re-render
+}
+function doLogout(){
+  if(!confirm('Log out?')) return;
+  localStorage.removeItem(SESS_KEY);
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-pg').style.display='flex';
+  document.getElementById('lp-user').value='';
+  document.getElementById('lp-pass').value='';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DATA LAYER — localStorage + DB sync
+// ══════════════════════════════════════════════════════════════
+const SK='ewaka_vt';
+function gd(){ try{ const s=localStorage.getItem(SK); return s?JSON.parse(s):{bikes:[],batteries:[],chargers:[]}; }catch{ return{bikes:[],batteries:[],chargers:[]}; } }
+function sd(d){
+  localStorage.setItem(SK,JSON.stringify(d));
+  autoSaveCSV(d);
+}
+
+// Normalise a row from PostgreSQL: trim ISO timestamps → YYYY-MM-DD
+function normRow(r){
+  const DATE_FIELDS=['date_in','date_assembled','date_dispatched','created_at','updated_at'];
+  const out={...r};
+  DATE_FIELDS.forEach(f=>{ if(out[f]) out[f]=String(out[f]).split('T')[0]; });
+  return out;
+}
+
+// Pull all records from the DB, overwrite localStorage, refresh the UI
+async function syncFromDB(){
+  if(!DB.live){ toast('Offline — using local cache','wn'); return; }
+  try{
+    const [bikes,bats,chgs]=await Promise.all([
+      DB.getAll('bikes'),
+      DB.getAll('batteries'),
+      DB.getAll('chargers')
+    ]);
+    const d={
+      bikes:      Array.isArray(bikes) ? bikes.map(normRow) : gd().bikes,
+      batteries:  Array.isArray(bats)  ? bats.map(normRow)  : gd().batteries,
+      chargers:   Array.isArray(chgs)  ? chgs.map(normRow)  : gd().chargers
+    };
+    localStorage.setItem(SK, JSON.stringify(d));  // write clean data
+    autoSaveCSV(d);                                // update CSV cache too
+    // Refresh whichever page is visible
+    renDash();
+    if(cur==='rec')  { renBkTbl(); renBaTbl(); renChTbl(); }
+    if(cur==='asm')  { fillAsmSel(); renAsmTbls(); }
+    if(cur==='disp') { refreshDispBikeSel(); renDispBkTbl(); renDispBaTbl(); renDispChTbl(); }
+    toast(`Synced from DB — ${d.bikes.length} bikes · ${d.batteries.length} batteries · ${d.chargers.length} chargers`,'ok');
+  }catch(err){
+    console.error('syncFromDB failed:', err);
+    toast('DB sync failed — using local cache','wn');
+  }
+}
+
+// Auto-save CSV strings to localStorage on every write
+function autoSaveCSV(data){
+  const d = data || gd();
+  const toCSV=(rows,hdr)=>{
+    const lines=[hdr.join(',')];
+    rows.forEach(r=>lines.push(hdr.map(h=>`"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(',')));
+    return lines.join('\n');
+  };
+  try{
+    localStorage.setItem('ewaka_csv_bikes',  toCSV(d.bikes,   ['date_in','bike_type','chassis_no','number_plate','status','dispatch_status','sold_type','finance_company','lease_type','client','office_location','office_purpose','technician','date_assembled','date_dispatched','return_reason']));
+    localStorage.setItem('ewaka_csv_bats',   toCSV(d.batteries,['date_in','battery_type','battery_number','status','assessment_status','battery_option','return_reason','date_dispatched','client','dispatch_status']));
+    localStorage.setItem('ewaka_csv_chgs',   toCSV(d.chargers,  ['date_in','charger_type','charger_number','status','inspection_status','return_reason','date_dispatched','client','dispatch_status']));
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════════════
+let cur='dash';
+function go(pg){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
+  const ni=document.getElementById('n-'+pg); if(ni) ni.classList.add('on');
+  cur=pg; sbClose();
+  if(pg==='dash')  renDash();
+  if(pg==='add')   { setAllDates(); updPfx(); }
+  if(pg==='disp')  { setAllDates(); refreshDispBikeSel(); renDispBkTbl(); renDispBaTbl(); renDispChTbl(); }
+  if(pg==='asm')   { setAllDates(); fillAsmSel(); renAsmTbls(); }
+  if(pg==='rec')   { renBkTbl(); renBaTbl(); renChTbl(); }
+}
+function mbtClick(){ document.getElementById('sb').classList.toggle('open'); document.getElementById('ovl').classList.toggle('show'); }
+function sbClose(){ document.getElementById('sb').classList.remove('open'); document.getElementById('ovl').classList.remove('show'); }
+
+// ══════════════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════════════
+function stab(grp,name,btn){
+  const card=btn.closest('.card');
+  card.querySelectorAll('.tp').forEach(p=>p.classList.remove('on'));
+  card.querySelectorAll('.tbb').forEach(b=>b.classList.remove('on'));
+  const tp=document.getElementById(grp+'-'+name);
+  if(tp) tp.classList.add('on');
+  btn.classList.add('on');
+  if(grp==='rec'){
+    if(name==='bikes') renBkTbl();
+    if(name==='bats')  renBaTbl();
+    if(name==='chgs')  renChTbl();
+  }
+  if(grp==='dr'){
+    if(name==='bikes') renDispBkTbl();
+    if(name==='bats')  renDispBaTbl();
+    if(name==='chgs')  renDispChTbl();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════════════
+function toast(msg,t='ok'){
+  const ic={ok:'✅',er:'❌',wn:'⚠️',in:'ℹ️'};
+  const c=document.getElementById('tc');
+  const el=document.createElement('div');
+  el.className=`tst tst-${t}`;
+  el.innerHTML=`<span>${ic[t]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(el);
+  setTimeout(()=>{ el.style.cssText='opacity:0;transition:opacity .3s'; setTimeout(()=>el.remove(),300); },3500);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DATE UTILITIES
+// ══════════════════════════════════════════════════════════════
+function tod(){ return new Date().toISOString().split('T')[0]; }
+function setToday(id){ const el=document.getElementById(id); if(el) el.value=tod(); }
+function setAllDates(){
+  const t=tod();
+  ['a-bdate','a-badate','a-cdate','db-date','dba-date','dch-date','as-date'].forEach(id=>{
+    const el=document.getElementById(id); if(el&&!el.value) el.value=t;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ADD STOCK — BIKE
+// ══════════════════════════════════════════════════════════════
+const CP={ 'Jasiri':['R5HA1KZ18R','R38CG0005PA'], 'Shujaa 2.0':['MB24A'], 'Shujaa 1.0':['2370223021'], 'Buga':['MB22A'], 'Jembe':['R4DLDMJ88S'] };
+const PP={ 'Jasiri':['KMGM'], 'Shujaa 2.0':[''], 'Shujaa 1.0':[''], 'Buga':[''], 'Jembe':[''] };
+
+function toggleAddStatus(){
+  const s=document.getElementById('a-bstat').value;
+  document.getElementById('add-asm-wrap').style.display = s==='New'?'':'none';
+  document.getElementById('add-ret-wrap').style.display = s==='Returned'?'':'none';
+}
+function updPfx(){
+  const bt=document.getElementById('a-btype').value;
+  const cs=document.getElementById('a-cpfx'), ps=document.getElementById('a-ppfx');
+  cs.innerHTML='<option value="">— prefix —</option>';
+  ps.innerHTML='<option value="">— prefix —</option>';
+  if(!bt) return;
+  (CP[bt]||[]).forEach(p=>cs.innerHTML+=`<option value="${p}">${p}</option>`);
+  if((CP[bt]||[]).length===1) cs.value=CP[bt][0];
+  (PP[bt]||[]).forEach(p=>ps.innerHTML+=`<option value="${p}">${p}</option>`);
+  if((PP[bt]||[]).length===1) ps.value=PP[bt][0];
+  updCp(); updPp();
+}
+function updCp(){
+  const pfx=document.getElementById('a-cpfx').value, sfx=document.getElementById('a-csfx').value;
+  const pr=document.getElementById('a-cprev');
+  pr.innerHTML=(pfx||sfx)?`<span>${pfx}</span>${sfx||'<em>???</em>'}`:'Full chassis number will appear here';
+}
+function updPp(){
+  const pfx=document.getElementById('a-ppfx').value, sfx=document.getElementById('a-psfx').value;
+  const pr=document.getElementById('a-pprev');
+  pr.innerHTML=(pfx||sfx)?`<span>${pfx}</span>${sfx||'<em>???</em>'}`:'Number plate will appear here';
+}
+function resetBike(){
+  ['a-btype','a-cpfx','a-ppfx','a-bstat','a-assembly','a-return-reason'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['a-csfx','a-psfx'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('a-cprev').textContent='Full chassis number will appear here';
+  document.getElementById('a-pprev').textContent='Number plate will appear here';
+  document.getElementById('a-bdate').value=tod();
+  document.getElementById('add-asm-wrap').style.display='none';
+  document.getElementById('add-ret-wrap').style.display='none';
+}
+function addBike(){
+  const bt=document.getElementById('a-btype').value;
+  const cpfx=document.getElementById('a-cpfx').value;
+  const csfx=document.getElementById('a-csfx').value.trim().toUpperCase();
+  const ppfx=document.getElementById('a-ppfx').value;
+  const psfx=document.getElementById('a-psfx').value.trim().toUpperCase();
+  const din=document.getElementById('a-bdate').value;
+  const inStat=document.getElementById('a-bstat').value;
+  const asmStat=document.getElementById('a-assembly').value;
+  const retReason=document.getElementById('a-return-reason').value;
+
+  if(!bt)    return toast('Please select a bike type.','er');
+  if(!cpfx)  return toast('Please select a chassis prefix.','er');
+  if(!csfx)  return toast('Please enter the remaining chassis digits.','er');
+  if(!din)   return toast('Please select a date in.','er');
+  if(!inStat)return toast('Please select a status.','er');
+  if(inStat==='New'&&!asmStat) return toast('Please select assembly status.','er');
+  if(inStat==='Returned'&&!retReason) return toast('Please select a return reason.','er');
+
+  const chassis=cpfx+csfx, plate=ppfx+psfx;
+  const finalStatus = inStat==='New' ? asmStat : inStat; // Assembled|Unassembled|Returned
+
+  const data=gd();
+  const idx=data.bikes.findIndex(b=>b.chassis_no===chassis);
+  const bikeObj={ id:Date.now(), date_in:din, bike_type:bt, chassis_no:chassis, number_plate:plate,
+    status:finalStatus, dispatch_status:'', sold_type:'', finance_company:'', lease_type:'',
+    client:'', office_location:'', office_purpose:'', technician:'', date_assembled:'',
+    assembly_notes:'', date_dispatched:'', return_reason: inStat==='Returned'?retReason:'' };
+
+  if(idx>=0){
+    Object.assign(data.bikes[idx],{status:finalStatus,date_in:din,return_reason:bikeObj.return_reason});
+    toast(`${chassis} already exists — status updated to ${finalStatus}.`,'wn');
+  } else {
+    data.bikes.push(bikeObj);
+    toast(`${bt} (${chassis}) added — ${finalStatus}!`,'ok');
+  }
+  sd(data);
+  DB.post('bikes', data.bikes[idx>=0?idx:data.bikes.length-1]);
+  resetBike();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ADD STOCK — BATTERY (fixed: reads d-battery-status)
+// ══════════════════════════════════════════════════════════════
+function toggleBatFields(){
+  const s=document.getElementById('d-battery-status').value;
+  document.getElementById('bat-assess-wrap').style.display = s==='New'?'':'none';
+  document.getElementById('bat-return-wrap').style.display = s==='Returned'?'':'none';
+}
+function togglejembeBatFields(){
+  const btype=document.getElementById('a-batype').value;
+  document.getElementById('a-battery-fin-wrap').style.display=btype==='Jembe'?'':'none';
+}
+function resetBat(){
+  ['a-batype','d-battery-status','d-battery-assessment','d-battery-return','a-bat-fin-wrap'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('a-banum').value='';
+  document.getElementById('a-badate').value=tod();
+  document.getElementById('bat-assess-wrap').style.display='none';
+  document.getElementById('bat-return-wrap').style.display='none';
+}
+function addBat(){
+  const bt=document.getElementById('a-batype').value;
+  const num=document.getElementById('a-banum').value.trim().toUpperCase();
+  const stat=document.getElementById('d-battery-status').value;   // FIXED
+  const assess=document.getElementById('d-battery-assessment').value;
+  const retReason=document.getElementById('d-battery-return').value;
+  const din=document.getElementById('a-badate').value;
+  const fin=document.getElementById('a-bat-fin-wrap').value;
+  if(!bt)   return toast('Please select a battery type.','er');
+  if(!num)  return toast('Please enter a battery number.','er');
+  if(!stat) return toast('Please select a status.','er');
+  if(!din)  return toast('Please select a date.','er');
+  const data=gd();
+  const ex=data.batteries.find(b=>b.battery_number===num);
+  const batObj={id:Date.now(),battery_type:bt,battery_number:num,status:stat,
+    assessment_status:assess,return_reason:retReason,date_in:din,battery_option:fin,
+    date_dispatched:'',client:'',dispatch_status:''};
+  if(ex){ Object.assign(ex,{status:stat,date_in:din,assessment_status:assess,battery_option:fin,return_reason:retReason}); toast(`Battery ${num} updated.`,'wn'); }
+  else { data.batteries.push(batObj); toast(`Battery ${num} added!`,'ok'); }
+  sd(data);
+  DB.post('batteries', ex||batObj);
+  resetBat();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ADD STOCK — CHARGER (fixed: reads d-charger-status)
+// ══════════════════════════════════════════════════════════════
+function toggleChgFields(){
+  const s=document.getElementById('d-charger-status').value;
+  document.getElementById('chg-inspect-wrap').style.display = s==='New'?'':'none';
+  document.getElementById('chg-return-wrap').style.display  = s==='Returned'?'':'none';
+}
+function resetChg(){
+  ['a-ctype','d-charger-status','d-charger-assessment','d-charger-return'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('a-cnum').value='';
+  document.getElementById('a-cdate').value=tod();
+  document.getElementById('chg-inspect-wrap').style.display='none';
+  document.getElementById('chg-return-wrap').style.display='none';
+}
+function addChg(){
+  const ct=document.getElementById('a-ctype').value;
+  const num=document.getElementById('a-cnum').value.trim().toUpperCase();
+  const stat=document.getElementById('d-charger-status').value;   // FIXED
+  const inspect=document.getElementById('d-charger-assessment').value;
+  const retReason=document.getElementById('d-charger-return').value;
+  const din=document.getElementById('a-cdate').value;
+  if(!ct)   return toast('Please select a charger type.','er');
+  if(!num)  return toast('Please enter a charger number.','er');
+  if(!stat) return toast('Please select a status.','er');
+  if(!din)  return toast('Please select a date.','er');
+  const data=gd();
+  const ex=data.chargers.find(c=>c.charger_number===num);
+  const chgObj={id:Date.now(),charger_type:ct,charger_number:num,status:stat,
+    inspection_status:inspect,return_reason:retReason,date_in:din,
+    date_dispatched:'',client:'',dispatch_status:''};
+  if(ex){ Object.assign(ex,{status:stat,date_in:din,inspection_status:inspect,return_reason:retReason}); toast(`Charger ${num} updated.`,'wn'); }
+  else { data.chargers.push(chgObj); toast(`Charger ${num} added!`,'ok'); }
+  sd(data);
+  DB.post('chargers', ex||chgObj);
+  resetChg();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DISPATCH — SHARED HELPERS
+// ══════════════════════════════════════════════════════════════
+function _hideConditionals(prefix){
+  ['sold-wrap','fin-wrap','lease-wrap','client-wrap','office-wrap','office-pur-wrap']
+    .forEach(s=>{ const el=document.getElementById(prefix+s); if(el) el.style.display='none'; });
+}
+function _showByStatus(prefix, stat){
+  _hideConditionals(prefix);
+  const show=(...ids)=>ids.forEach(id=>{ const el=document.getElementById(prefix+id); if(el) el.style.display=''; });
+  if(stat==='Sold')     { show('sold-wrap','client-wrap'); }
+  else if(stat==='Leased')   { show('lease-wrap','client-wrap'); }
+  else if(stat==='Repaired') { show('client-wrap'); }
+  else if(stat==='In-Office'){ show('office-wrap','office-pur-wrap'); }
+  // Fleet: no extras
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DISPATCH — BIKE (prefix: db-)
+// ══════════════════════════════════════════════════════════════
+function refreshDispBikeSel(){
+  const type=document.getElementById('db-type').value;
+  const sel=document.getElementById('db-sel');
+  const bikes=gd().bikes.filter(b=>b.status==='Assembled'&&(!type||b.bike_type===type));
+  sel.innerHTML='<option value="">— Choose chassis number —</option>';
+  bikes.forEach(b=>sel.innerHTML+=`<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}${b.number_plate?' · '+b.number_plate:''}</option>`);
+  document.getElementById('db-atype').value='';
+  document.getElementById('db-plate').value='';
+}
+function fillBikeDisp(){
+  const cn=document.getElementById('db-sel').value;
+  const b=gd().bikes.find(b=>b.chassis_no===cn);
+  document.getElementById('db-atype').value=b?b.bike_type:'';
+  document.getElementById('db-plate').value=b?b.number_plate||'':'';
+}
+function toggleBikeDisp(){ _showByStatus('db-',document.getElementById('db-stat').value); }
+function toggleBikeFinance(){
+  const st=document.getElementById('db-sold-type').value;
+  document.getElementById('db-fin-wrap').style.display=st==='Financing'?'':'none';
+}
+// function togglejembeBatFields(){
+//   const btype=document.getElementById('a-batype').value;
+//   document.getElementById('a-battery-fin-wrap').style.display=btype==='Jembe'?'':'none';
+// }
+function doDispBike(){
+  const cn=document.getElementById('db-sel').value;
+  const dd=document.getElementById('db-date').value;
+  const stat=document.getElementById('db-stat').value;
+  const soldType=document.getElementById('db-sold-type').value;
+  const finance=document.getElementById('db-finance').value;
+  const leaseType=document.getElementById('db-lease-type').value;
+  const client=document.getElementById('db-client').value.trim();
+  const officeLoc=document.getElementById('db-office-loc').value;
+  const officePur=document.getElementById('db-office-pur').value;
+  if(!cn)   return toast('Please select a bike.','er');
+  if(!stat) return toast('Please select a dispatch status.','er');
+  if(!dd)   return toast('Please select a dispatch date.','er');
+  if(stat==='Sold'&&!soldType)  return toast('Please select sold type.','er');
+  if(stat==='Sold'&&soldType==='Financing'&&!finance) return toast('Please select financing company.','er');
+  if(stat==='Leased'&&!leaseType) return toast('Please select leasing type.','er');
+  if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
+  if(stat==='In-Office'&&!officeLoc) return toast('Please select office location.','er');
+  const data=gd();
+  const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
+  if(idx<0) return toast('Bike not found!','er');
+  const dispatched={status:'Dispatched',dispatch_status:stat,sold_type:soldType,
+    finance_company:finance,lease_type:leaseType,
+    client:stat==='In-Office'?officeLoc:client,
+    office_location:officeLoc,office_purpose:officePur,date_dispatched:dd};
+  Object.assign(data.bikes[idx],dispatched);
+  sd(data);
+  DB.put('bikes',cn,data.bikes[idx]);
+  toast(`${cn} dispatched → ${stat} ✅`,'ok');
+  clrBikeDisp(); refreshDispBikeSel(); renDispBkTbl();
+}
+function clrBikeDisp(){
+  ['db-type','db-sel','db-atype','db-plate','db-stat','db-sold-type','db-finance','db-lease-type','db-client','db-office-loc','db-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  _hideConditionals('db-');
+  document.getElementById('db-date').value=tod();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DISPATCH — BATTERY (prefix: dba-)
+// ══════════════════════════════════════════════════════════════
+function refreshDispBatSel(){
+  const type=document.getElementById('dba-type').value;
+  const sel=document.getElementById('dba-sel');
+  const bats=gd().batteries.filter(b=>b.status!=='Dispatched'&&(!type||b.battery_type===type));
+  sel.innerHTML='<option value="">— Choose battery number —</option>';
+  bats.forEach(b=>sel.innerHTML+=`<option value="${b.battery_number}">${b.battery_number} · ${b.battery_type} [${b.status}]</option>`);
+}
+function toggleBatDisp(){ _showByStatus('dba-',document.getElementById('dba-stat').value); }
+function toggleBatFinance(){
+  document.getElementById('dba-fin-wrap').style.display=document.getElementById('dba-sold-type').value==='Financing'?'':'none';
+}
+function doDispBat(){
+  const num=document.getElementById('dba-sel').value;
+  const stat=document.getElementById('dba-stat').value;
+  const dd=document.getElementById('dba-date').value;
+  const client=document.getElementById('dba-client').value.trim();
+  const officeLoc=document.getElementById('dba-office-loc').value;
+  if(!num)  return toast('Please select a battery.','er');
+  if(!stat) return toast('Please select a dispatch status.','er');
+  if(!dd)   return toast('Please select a dispatch date.','er');
+  if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
+  if(stat==='In-Office'&&!officeLoc) return toast('Please select office location.','er');
+  const data=gd();
+  const idx=data.batteries.findIndex(b=>b.battery_number===num);
+  if(idx<0) return toast('Battery not found!','er');
+  Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,
+    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
+  sd(data);
+  DB.put('batteries',num,data.batteries[idx]);
+  toast(`Battery ${num} dispatched → ${stat} ✅`,'ok');
+  clrBatDisp(); refreshDispBatSel(); renDispBaTbl();
+}
+function clrBatDisp(){
+  ['dba-type','dba-sel','dba-stat','dba-sold-type','dba-finance','dba-lease-type','dba-client','dba-office-loc','dba-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  _hideConditionals('dba-');
+  document.getElementById('dba-date').value=tod();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DISPATCH — CHARGER (prefix: dch-)
+// ══════════════════════════════════════════════════════════════
+function refreshDispChgSel(){
+  const type=document.getElementById('dch-type').value;
+  const sel=document.getElementById('dch-sel');
+  const chgs=gd().chargers.filter(c=>c.status!=='Dispatched'&&(!type||c.charger_type===type));
+  sel.innerHTML='<option value="">— Choose charger number —</option>';
+  chgs.forEach(c=>sel.innerHTML+=`<option value="${c.charger_number}">${c.charger_number} · ${c.charger_type} [${c.status}]</option>`);
+}
+function toggleChgDisp(){ _showByStatus('dch-',document.getElementById('dch-stat').value); }
+function toggleChgFinance(){
+  document.getElementById('dch-fin-wrap').style.display=document.getElementById('dch-sold-type').value==='Financing'?'':'none';
+}
+function doDispChg(){
+  const num=document.getElementById('dch-sel').value;
+  const stat=document.getElementById('dch-stat').value;
+  const dd=document.getElementById('dch-date').value;
+  const client=document.getElementById('dch-client').value.trim();
+  const officeLoc=document.getElementById('dch-office-loc').value;
+  if(!num)  return toast('Please select a charger.','er');
+  if(!stat) return toast('Please select a dispatch status.','er');
+  if(!dd)   return toast('Please select a dispatch date.','er');
+  if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
+  if(stat==='In-Office'&&!officeLoc) return toast('Please select office location.','er');
+  const data=gd();
+  const idx=data.chargers.findIndex(c=>c.charger_number===num);
+  if(idx<0) return toast('Charger not found!','er');
+  Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,
+    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
+  sd(data);
+  DB.put('chargers',num,data.chargers[idx]);
+  toast(`Charger ${num} dispatched → ${stat} ✅`,'ok');
+  clrChgDisp(); refreshDispChgSel(); renDispChTbl();
+}
+function clrChgDisp(){
+  ['dch-type','dch-sel','dch-stat','dch-sold-type','dch-finance','dch-lease-type','dch-client','dch-office-loc','dch-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  _hideConditionals('dch-');
+  document.getElementById('dch-date').value=tod();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DISPATCH TABLE RENDERERS
+// ══════════════════════════════════════════════════════════════
+function dispStatBdg(ds){
+  const m={Sold:'sold',Fleet:'fleet',Leased:'leased','In-Office':'office',Repaired:'re'};
+  return `<span class="bdg b-${m[ds]||'di'}">${ds||'—'}</span>`;
+}
+function renDispBkTbl(){
+  const q=(document.getElementById('dr-sbk')?.value||'').toLowerCase();
+  const rows=gd().bikes.filter(b=>b.status==='Dispatched').filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
+  const w=document.getElementById('dr-bktbl');
+  if(!rows.length){ w.innerHTML=es('🚚','No dispatched bikes yet.'); return; }
+  w.innerHTML=`<table><thead><tr><th>Chassis No.</th><th>Type</th><th>Plate</th><th>Dispatch Type</th><th>Client</th><th>Sold Type</th><th>Finance Co.</th><th>Date Out</th></tr></thead><tbody>
+    ${rows.map(b=>`<tr><td class="mn">${b.chassis_no}</td><td>${b.bike_type}</td><td class="mn">${b.number_plate||'—'}</td>
+    <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.client||'—'}</td>
+    <td>${b.sold_type||'—'}</td><td>${b.finance_company||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+function renDispBaTbl(){
+  const q=(document.getElementById('dr-sba')?.value||'').toLowerCase();
+  const rows=gd().batteries.filter(b=>b.status==='Dispatched').filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
+  const w=document.getElementById('dr-batbl');
+  if(!rows.length){ w.innerHTML=es('🔋','No dispatched batteries yet.'); return; }
+  w.innerHTML=`<table><thead><tr><th>Battery No.</th><th>Type</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
+    ${rows.map(b=>`<tr><td class="mn">${b.battery_number}</td><td>${b.battery_type}</td>
+    <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.client||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+function renDispChTbl(){
+  const q=(document.getElementById('dr-sch')?.value||'').toLowerCase();
+  const rows=gd().chargers.filter(c=>c.status==='Dispatched').filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q));
+  const w=document.getElementById('dr-chtbl');
+  if(!rows.length){ w.innerHTML=es('⚡','No dispatched chargers yet.'); return; }
+  w.innerHTML=`<table><thead><tr><th>Charger No.</th><th>Type</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
+    ${rows.map(c=>`<tr><td class="mn">${c.charger_number}</td><td>${c.charger_type}</td>
+    <td>${dispStatBdg(c.dispatch_status)}</td><td>${c.client||'—'}</td><td>${c.date_dispatched||'—'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ASSEMBLY
+// ══════════════════════════════════════════════════════════════
+function fillAsmSel(){
+  const sel=document.getElementById('as-sel');
+  const un=gd().bikes.filter(b=>b.status==='Unassembled');
+  sel.innerHTML='<option value="">— Choose chassis number —</option>';
+  un.forEach(b=>sel.innerHTML+=`<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}</option>`);
+}
+function fillAsm(){
+  const cn=document.getElementById('as-sel').value;
+  const b=gd().bikes.find(b=>b.chassis_no===cn);
+  document.getElementById('as-btype').value=b?b.bike_type:'';
+}
+function asmBike(){
+  const cn=document.getElementById('as-sel').value;
+  const tech=document.getElementById('as-tech').value.trim();
+  const da=document.getElementById('as-date').value;
+  const notes=document.getElementById('as-notes').value.trim();
+  if(!cn)   return toast('Please select a bike.','er');
+  if(!tech) return toast('Please enter the technician name.','er');
+  if(!da)   return toast('Please select the assembly date.','er');
+  const data=gd();
+  const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
+  if(idx<0) return toast('Bike not found!','er');
+  Object.assign(data.bikes[idx],{status:'Assembled',technician:tech,date_assembled:da,assembly_notes:notes});
+  sd(data);
+  DB.put('bikes',cn,data.bikes[idx]);
+  toast(`${cn} marked Assembled by ${tech} ✅`,'ok');
+  clrAsm(); fillAsmSel(); renAsmTbls();
+}
+function clrAsm(){
+  ['as-sel','as-btype','as-tech','as-notes'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('as-date').value=tod();
+}
+function renAsmTbls(){
+  const data=gd();
+  const un=data.bikes.filter(b=>b.status==='Unassembled');
+  const uw=document.getElementById('as-un');
+  uw.innerHTML=!un.length?es('📭','No bikes in the assembly queue.'):
+    `<table><thead><tr><th>Chassis No.</th><th>Type</th><th>Plate</th><th>Date In</th><th>Status</th></tr></thead><tbody>
+    ${un.map(b=>`<tr><td class="mn">${b.chassis_no}</td><td>${b.bike_type}</td><td class="mn">${b.number_plate||'—'}</td>
+    <td>${b.date_in}</td><td>${bdg('Unassembled')}</td></tr>`).join('')}</tbody></table>`;
+  const ok=data.bikes.filter(b=>b.status==='Assembled');
+  const aw=document.getElementById('as-ok');
+  aw.innerHTML=!ok.length?es('🔧','No assembled bikes yet.'):
+    `<table><thead><tr><th>Chassis No.</th><th>Type</th><th>Plate</th><th>Technician</th><th>Date Assembled</th><th>Status</th></tr></thead><tbody>
+    ${ok.map(b=>`<tr><td class="mn">${b.chassis_no}</td><td>${b.bike_type}</td><td class="mn">${b.number_plate||'—'}</td>
+    <td>${b.technician||'—'}</td><td>${b.date_assembled||'—'}</td><td>${bdg('Assembled')}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RECORDS TABLES
+// ══════════════════════════════════════════════════════════════
+function renBkTbl(){
+  const q=(document.getElementById('r-sbk')?.value||'').toLowerCase();
+  const bikes=gd().bikes.filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
+  const w=document.getElementById('r-bktbl');
+  if(!bikes.length){ w.innerHTML=es('🏍️','No bikes in inventory.'); return; }
+  w.innerHTML=`<table><thead><tr><th>Date In</th><th>Type</th><th>Chassis No.</th><th>Plate</th><th>Status</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
+    ${bikes.map(b=>`<tr><td>${b.date_in}</td><td>${b.bike_type}</td><td class="mn">${b.chassis_no}</td>
+    <td class="mn">${b.number_plate||'—'}</td><td>${bdg(b.status)}</td>
+    <td>${b.dispatch_status?dispStatBdg(b.dispatch_status):'—'}</td>
+    <td>${b.client||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}</tbody></table>`;
+}
+function renBaTbl(){
+  const q=(document.getElementById('r-sba')?.value||'').toLowerCase();
+  const bats=gd().batteries.filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
+  const w=document.getElementById('r-batbl');
+  if(!bats.length){ w.innerHTML=es('🔋','No batteries in inventory.'); return; }
+  w.innerHTML=`<table><thead><tr><th>Date In</th><th>Type</th><th>Battery No.</th><th>Status</th><th>Battery Option</th><th> Battery Assessment</th><th>Return Reason</th><th>Date Out</th><th>Client</th></tr></thead><tbody>
+    ${bats.map(b=>`<tr><td>${b.date_in}</td><td>${b.battery_type}</td><td class="mn">${b.battery_number}</td>
+    <td>${bdg(b.status)}</td><td>${b.battery_option||'—'}</td><td>${b.assessment_status||'—'}</td><td>${b.return_reason||'—'}</td>
+    <td>${b.date_dispatched||'—'}</td><td>${b.client||'—'}</td></tr>`).join('')}</tbody></table>`;
+}
+function renChTbl(){
+  const q=(document.getElementById('r-sch')?.value||'').toLowerCase();
+  const chgs=gd().chargers.filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q));
+  const w=document.getElementById('r-chtbl');
+  if(!chgs.length){ w.innerHTML=es('⚡','No chargers in inventory.'); return; }
+  w.innerHTML=`<table><thead><tr><th>Date In</th><th>Type</th><th>Charger No.</th><th>Status</th><th>Inspection</th><th>Return Reason</th><th>Date Out</th><th>Client</th></tr></thead><tbody>
+    ${chgs.map(c=>`<tr><td>${c.date_in}</td><td>${c.charger_type}</td><td class="mn">${c.charger_number}</td>
+    <td>${bdg(c.status)}</td><td>${c.inspection_status||'—'}</td><td>${c.return_reason||'—'}</td>
+    <td>${c.date_dispatched||'—'}</td><td>${c.client||'—'}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DASHBOARD (Stock In / Out per type + accessories per model)
+// ══════════════════════════════════════════════════════════════
+const IN_STATS = ['Unassembled','Assembled','Returned','Faulty','New','Assessed','Not Assessed','Tested','Not Tested'];
+const ALL_TYPES = ['Jasiri','Shujaa 2.0','Shujaa 1.0','Buga','Jembe'];
+
+function renDash(){
+  const data=gd();
+  const bikes=data.bikes, bats=data.batteries, chgs=data.chargers;
+
+  // ─── STOCK IN / OUT CARDS ───
+  const bkIn  = bikes.filter(b=>b.status!=='Dispatched').length;
+  const bkOut = bikes.filter(b=>b.status==='Dispatched').length;
+  const baIn  = bats.filter(b=>b.status!=='Dispatched').length;
+  const baOut = bats.filter(b=>b.status==='Dispatched').length;
+  const chIn  = chgs.filter(c=>c.status!=='Dispatched').length;
+  const chOut = chgs.filter(c=>c.status==='Dispatched').length;
+
+  document.getElementById('sio-grid').innerHTML=`
+    <div class="sio-card">
+      <div class="sio-title">🏍️ Bikes</div>
+      <div class="sio-row">
+        <div class="sio-h in"><div class="sio-n">${bkIn}</div><div class="sio-l">In Stock</div></div>
+        <div class="sio-h out"><div class="sio-n">${bkOut}</div><div class="sio-l">Dispatched</div></div>
+      </div>
+    </div>
+    <div class="sio-card">
+      <div class="sio-title">🔋 Batteries</div>
+      <div class="sio-row">
+        <div class="sio-h in"><div class="sio-n">${baIn}</div><div class="sio-l">In Warehouse</div></div>
+        <div class="sio-h out"><div class="sio-n">${baOut}</div><div class="sio-l">Dispatched</div></div>
+      </div>
+    </div>
+    <div class="sio-card">
+      <div class="sio-title">⚡ Chargers</div>
+      <div class="sio-row">
+        <div class="sio-h in"><div class="sio-n">${chIn}</div><div class="sio-l">In Warehouse</div></div>
+        <div class="sio-h out"><div class="sio-n">${chOut}</div><div class="sio-l">Dispatched</div></div>
+      </div>
+    </div>`;
+
+  // ─── DISPATCH BREAKDOWN PILLS ───
+  const DSTATS=['Sold','Fleet','Leased','In-Office','Repaired'];
+  const pillHtml=DSTATS.map(ds=>{
+    const n=bikes.filter(b=>b.dispatch_status===ds).length;
+    return n>0?`<div class="pill"><span>${n}</span>${ds}</div>`:null;
+  }).filter(Boolean);
+  document.getElementById('dsp-pills').innerHTML = pillHtml.length
+    ? `<span style="font-size:11px;color:var(--muted);font-weight:600;align-self:center">Bikes out by type:</span>${pillHtml.join('')}`
+    : '';
+
+  // ─── SUMMARY STAT CARDS ───
+  const un=bikes.filter(b=>b.status==='Unassembled').length;
+  const ok=bikes.filter(b=>b.status==='Assembled').length;
+  const fa=bikes.filter(b=>['Faulty','Returned'].includes(b.status)).length;
+  document.getElementById('sg').innerHTML=`
+    <div class="sc" style="--scol:#f97316"><div class="sl">Total Bikes</div><div class="sv">${bikes.length}</div><div class="ss">All statuses</div></div>
+    <div class="sc" style="--scol:#f59e0b"><div class="sl">Awaiting Assembly</div><div class="sv">${un}</div><div class="ss">Unassembled</div></div>
+    <div class="sc" style="--scol:#22c55e"><div class="sl">Ready to Dispatch</div><div class="sv">${ok}</div><div class="ss">Assembled</div></div>
+    <div class="sc" style="--scol:#3b82f6"><div class="sl">Dispatched</div><div class="sv">${bkOut}</div><div class="ss">In the field</div></div>
+    <div class="sc" style="--scol:#ef4444"><div class="sl">Faulty / Returned</div><div class="sv">${fa}</div><div class="ss">Needs attention</div></div>
+    <div class="sc" style="--scol:#8b5cf6"><div class="sl">Accessories Total</div><div class="sv">${bats.length+chgs.length}</div><div class="ss">${bats.length} bats · ${chgs.length} chgs</div></div>`;
+
+  // ─── RECENT ACTIVITY ───
+  const recent=[...bikes].sort((a,b)=>(b.date_in||'').localeCompare(a.date_in||'')).slice(0,10);
+  const act=document.getElementById('d-act');
+  act.innerHTML=!recent.length?es('📭','No activity yet. Add stock to get started!'):
+    `<div class="tw"><table><thead><tr><th>Date In</th><th>Type</th><th>Chassis No.</th><th>Plate</th><th>Status</th></tr></thead><tbody>
+    ${recent.map(b=>`<tr><td>${b.date_in}</td><td>${b.bike_type}</td><td class="mn">${b.chassis_no}</td>
+    <td class="mn">${b.number_plate||'—'}</td><td>${bdg(b.status)}</td></tr>`).join('')}</tbody></table></div>`;
+
+  // ─── BIKES BY MODEL ───
+  const types=[...new Set(bikes.map(b=>b.bike_type))];
+  const fleet=document.getElementById('d-fleet');
+  fleet.innerHTML=!types.length?es('🚲','No fleet data yet.'):
+    `<div class="tw"><table><thead><tr><th>Model</th><th>Total</th><th>Unassembled</th><th>Assembled</th><th>Stock In</th><th>Dispatched (Out)</th><th>Faulty/Ret.</th></tr></thead><tbody>
+    ${types.map(t=>{ const tb=bikes.filter(b=>b.bike_type===t); return `<tr>
+      <td><strong>${t}</strong></td><td>${tb.length}</td>
+      <td>${tb.filter(b=>b.status==='Unassembled').length}</td>
+      <td>${tb.filter(b=>b.status==='Assembled').length}</td>
+      <td style="color:#16a34a;font-weight:700">${tb.filter(b=>b.status!=='Dispatched').length}</td>
+      <td style="color:#1d4ed8;font-weight:700">${tb.filter(b=>b.status==='Dispatched').length}</td>
+      <td>${tb.filter(b=>['Faulty','Returned'].includes(b.status)).length}</td>
+    </tr>`; }).join('')}</tbody></table></div>`;
+
+  // ─── ACCESSORIES BY MODEL ───
+  const accTypes=[...new Set([...bats.map(b=>b.battery_type),...chgs.map(c=>c.charger_type)])].filter(Boolean);
+  const acc=document.getElementById('d-acc');
+  if(!accTypes.length){ acc.innerHTML=es('🔋','No accessories added yet.'); return; }
+  const rows=accTypes.map(t=>{
+    const tb=bats.filter(b=>b.battery_type===t);
+    const tc=chgs.filter(c=>c.charger_type===t);
+    const bi=tb.filter(b=>b.status!=='Dispatched').length, bo=tb.filter(b=>b.status==='Dispatched').length;
+    const ci=tc.filter(c=>c.status!=='Dispatched').length, co=tc.filter(c=>c.status==='Dispatched').length;
+    return `<tr><td><strong>${t}</strong></td>
+      <td style="color:#16a34a;font-weight:700">${bi}</td>
+      <td style="color:#1d4ed8;font-weight:700">${bo}</td>
+      <td style="color:#16a34a;font-weight:700">${ci}</td>
+      <td style="color:#1d4ed8;font-weight:700">${co}</td>
+      <td>${bi+bo}</td><td>${ci+co}</td></tr>`;
+  });
+  const totBatIn=bats.filter(b=>b.status!=='Dispatched').length, totBatOut=baOut;
+  const totChgIn=chgs.filter(c=>c.status!=='Dispatched').length, totChgOut=chOut;
+  acc.innerHTML=`<div class="tw"><table>
+    <thead><tr>
+      <th>Model</th>
+      <th>🔋 Bats In</th><th>🔋 Bats Out</th>
+      <th>⚡ Chgs In</th><th>⚡ Chgs Out</th>
+      <th>Total Bats</th><th>Total Chgs</th>
+    </tr></thead>
+    <tbody>${rows.join('')}</tbody>
+    <tfoot style="background:#f9fafb"><tr>
+      <td><strong>Total</strong></td>
+      <td style="color:#16a34a;font-weight:800">${totBatIn}</td>
+      <td style="color:#1d4ed8;font-weight:800">${totBatOut}</td>
+      <td style="color:#16a34a;font-weight:800">${totChgIn}</td>
+      <td style="color:#1d4ed8;font-weight:800">${totChgOut}</td>
+      <td><strong>${bats.length}</strong></td>
+      <td><strong>${chgs.length}</strong></td>
+    </tr></tfoot>
+  </table></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  BADGE + EMPTY STATE
+// ══════════════════════════════════════════════════════════════
+function bdg(s){
+  const m={Unassembled:'un',Assembled:'as',Dispatched:'di',Returned:'re',Faulty:'fa',New:'nw'};
+  return `<span class="bdg b-${m[s]||'un'}">${s}</span>`;
+}
+function es(icon,msg){ return `<div class="es"><div class="ei">${icon}</div><p>${msg}</p></div>`; }
+
+// ══════════════════════════════════════════════════════════════
+//  EXPORT CSV (reads auto-saved CSV from localStorage)
+// ══════════════════════════════════════════════════════════════
+function xport(type){
+  const data=gd();
+  const toCSV=(rows,hdr)=>{
+    if(!rows.length) return null;
+    return [hdr.join(','), ...rows.map(r=>hdr.map(h=>`"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
+  };
+  let csv=null, fn='';
+  if(type==='bikes')           { csv=toCSV(data.bikes,['date_in','bike_type','chassis_no','number_plate','status','dispatch_status','sold_type','finance_company','lease_type','client','office_location','office_purpose','technician','date_assembled','date_dispatched','return_reason']); fn='bikes_inventory.csv'; }
+  else if(type==='dispatched-bikes'){ csv=toCSV(data.bikes.filter(b=>b.status==='Dispatched'),['chassis_no','bike_type','number_plate','dispatch_status','sold_type','finance_company','lease_type','client','office_location','date_dispatched']); fn='dispatched_bikes.csv'; }
+  else if(type==='batteries')  { csv=toCSV(data.batteries,['date_in','battery_type','battery_number','status','assessment_status','return_reason','battery_option','date_dispatched','client','dispatch_status']); fn='batteries_inventory.csv'; }
+  else if(type==='dispatched-bats'){ csv=toCSV(data.batteries.filter(b=>b.status==='Dispatched'),['battery_number','battery_type','dispatch_status','client','date_dispatched']); fn='dispatched_batteries.csv'; }
+  else if(type==='chargers')   { csv=toCSV(data.chargers,['date_in','charger_type','charger_number','status','inspection_status','return_reason','date_dispatched','client','dispatch_status']); fn='chargers_inventory.csv'; }
+  else if(type==='dispatched-chgs'){ csv=toCSV(data.chargers.filter(c=>c.status==='Dispatched'),['charger_number','charger_type','dispatch_status','client','date_dispatched']); fn='dispatched_chargers.csv'; }
+  else if(type==='all'){ dnld(URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),'ewaka_backup.json'); return toast('Full JSON backup exported!','ok'); }
+  if(!csv) return toast('No data to export.','wn');
+  dnld(URL.createObjectURL(new Blob([csv],{type:'text/csv'})),fn);
+  toast(`${fn} exported!`,'ok');
+}
+function dnld(url,fn){ const a=document.createElement('a'); a.href=url; a.download=fn; a.click(); URL.revokeObjectURL(url); }
+
+// ══════════════════════════════════════════════════════════════
+//  IMPORT CSV / JSON
+// ══════════════════════════════════════════════════════════════
+let impTarget='';
+function trigImp(t){ impTarget=t; document.getElementById('imp-inp').accept=t==='json'?'.json':'.csv'; document.getElementById('imp-inp').click(); }
+function doImport(inp){
+  const file=inp.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      if(impTarget==='json'){
+        const parsed=JSON.parse(e.target.result);
+        if(!parsed.bikes||!parsed.batteries||!parsed.chargers) return toast('Invalid JSON format.','er');
+        if(!confirm('Replace ALL current data with this backup?')) return;
+        sd(parsed); toast('Data restored from JSON backup!','ok');
+        if(cur==='dash') renDash();
+      } else {
+        parseCsvImport(e.target.result,impTarget);
+      }
+    }catch(err){ toast('Import failed: '+err.message,'er'); }
+  };
+  reader.readAsText(file); inp.value='';
+}
+function parseCsvImport(csv,type){
+  const lines=csv.trim().split('\n');
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim());
+  const data=gd(); let added=0,updated=0;
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    const vals=lines[i].match(/("([^"]*)"|[^,]*)/g).map(v=>v.replace(/"/g,'').trim());
+    const row={}; headers.forEach((h,idx)=>row[h]=vals[idx]||'');
+    if(type==='bikes'){
+      if(!row.chassis_no) continue;
+      const idx=data.bikes.findIndex(b=>b.chassis_no===row.chassis_no);
+      const bike={id:Date.now()+i,date_in:row.date_in||'',bike_type:row.bike_type||'',chassis_no:row.chassis_no,
+        number_plate:row.number_plate||'',status:row.status||'Unassembled',dispatch_status:row.dispatch_status||'',
+        sold_type:row.sold_type||'',finance_company:row.finance_company||'',lease_type:row.lease_type||'',
+        client:row.client||'',office_location:row.office_location||'',office_purpose:row.office_purpose||'',
+        technician:row.technician||'',date_assembled:row.date_assembled||'',date_dispatched:row.date_dispatched||'',
+        return_reason:row.return_reason||'',assembly_notes:''};
+      if(idx>=0){ Object.assign(data.bikes[idx],bike); updated++; } else { data.bikes.push(bike); added++; }
+    } else if(type==='batteries'){
+      if(!row.battery_number) continue;
+      const idx=data.batteries.findIndex(b=>b.battery_number===row.battery_number);
+      const bat={id:Date.now()+i,date_in:row.date_in||'',battery_type:row.battery_type||'',battery_option:row.battery_option||'',battery_number:row.battery_number,
+        status:row.status||'New',assessment_status:row.assessment_status||'',return_reason:row.return_reason||'',
+        date_dispatched:row.date_dispatched||'',client:row.client||'',dispatch_status:row.dispatch_status||''};
+      if(idx>=0){ Object.assign(data.batteries[idx],bat); updated++; } else { data.batteries.push(bat); added++; }
+    } else if(type==='chargers'){
+      if(!row.charger_number) continue;
+      const idx=data.chargers.findIndex(c=>c.charger_number===row.charger_number);
+      const chg={id:Date.now()+i,date_in:row.date_in||'',charger_type:row.charger_type||'',charger_number:row.charger_number,
+        status:row.status||'New',inspection_status:row.inspection_status||'',return_reason:row.return_reason||'',
+        date_dispatched:row.date_dispatched||'',client:row.client||'',dispatch_status:row.dispatch_status||''};
+      if(idx>=0){ Object.assign(data.chargers[idx],chg); updated++; } else { data.chargers.push(chg); added++; }
+    }
+  }
+  sd(data); toast(`Import done: ${added} added, ${updated} updated.`,'ok');
+  renBkTbl(); renBaTbl(); renChTbl();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  CLEAR ALL
+// ══════════════════════════════════════════════════════════════
+function clearAll(){
+  if(!confirm('⚠️ Permanently delete ALL inventory data?')) return;
+  if(!confirm('This cannot be undone. Continue?')) return;
+  sd({bikes:[],batteries:[],chargers:[]});
+  toast('All data cleared.','wn');
+  renDash(); renBkTbl(); renBaTbl(); renChTbl();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  const sess=getSession();
+  if(sess){ showApp(sess); }
+  // Enter key on login
+  document.getElementById('lp-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+});
+</script>
+</body>
+</html> 
