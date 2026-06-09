@@ -27,68 +27,68 @@ const pool = new Pool({
 });
 
 // ── Auto-create tables on startup ───────────────────────────────────
-async function initSchema() {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS bikes (
-        id              SERIAL PRIMARY KEY,
-        date_in         DATE,
-        bike_type       VARCHAR(50),
-        chassis_no      VARCHAR(100) UNIQUE NOT NULL,
-        number_plate    VARCHAR(50),
-        status          VARCHAR(50)  DEFAULT 'Unassembled',
-        dispatch_status VARCHAR(50),
-        sold_type       VARCHAR(50),
-        finance_company VARCHAR(100),
-        lease_type      VARCHAR(50),
-        client          VARCHAR(200),
-        office_location VARCHAR(100),
-        office_purpose  VARCHAR(100),
-        technician      VARCHAR(200),
-        date_assembled  DATE,
-        assembly_notes  TEXT,
-        date_dispatched DATE,
-        return_reason   VARCHAR(100),
-        created_at      TIMESTAMP DEFAULT NOW(),
-        updated_at      TIMESTAMP DEFAULT NOW()
-      );
+// async function initSchema() {
+//   try {
+//     await pool.query(`
+//       CREATE TABLE IF NOT EXISTS bikes (
+//         id              SERIAL PRIMARY KEY,
+//         date_in         DATE,
+//         bike_type       VARCHAR(50),
+//         chassis_no      VARCHAR(100) UNIQUE NOT NULL,
+//         number_plate    VARCHAR(50),
+//         status          VARCHAR(50)  DEFAULT 'Unassembled',
+//         dispatch_status VARCHAR(50),
+//         sold_type       VARCHAR(50),
+//         finance_company VARCHAR(100),
+//         lease_type      VARCHAR(50),
+//         client          VARCHAR(200),
+//         office_location VARCHAR(100),
+//         office_purpose  VARCHAR(100),
+//         technician      VARCHAR(200),
+//         date_assembled  DATE,
+//         assembly_notes  TEXT,
+//         date_dispatched DATE,
+//         return_reason   VARCHAR(100),
+//         created_at      TIMESTAMP DEFAULT NOW(),
+//         updated_at      TIMESTAMP DEFAULT NOW()
+//       );
 
-      CREATE TABLE IF NOT EXISTS batteries (
-        id                SERIAL PRIMARY KEY,
-        battery_type      VARCHAR(50),
-        battery_number    VARCHAR(100) UNIQUE NOT NULL,
-        status            VARCHAR(50) DEFAULT 'New',
-        assessment_statusVARCHAR(50),
-        return_reason     VARCHAR(100),
-        date_in           DATE,
-        battery_option    VARCHAR(50),
-        date_dispatched   DATE,
-        client            VARCHAR(200),
-        dispatch_status   VARCHAR(50),
-        created_at        TIMESTAMP DEFAULT NOW(),
-        updated_at        TIMESTAMP DEFAULT NOW()
-      );
+//       // CREATE TABLE IF NOT EXISTS batteries (
+//       //   id                SERIAL PRIMARY KEY,
+//       //   battery_type      VARCHAR(50),
+//       //   battery_number    VARCHAR(100) UNIQUE NOT NULL,
+//       //   status            VARCHAR(50) DEFAULT 'New',
+//       //   assessment_statusVARCHAR(50),
+//       //   return_reason     VARCHAR(100),
+//       //   date_in           DATE,
+//       //   battery_option    VARCHAR(50),
+//       //   date_dispatched   DATE,
+//       //   client            VARCHAR(200),
+//       //   dispatch_status   VARCHAR(50),
+//       //   created_at        TIMESTAMP DEFAULT NOW(),
+//       //   updated_at        TIMESTAMP DEFAULT NOW()
+//       // );
 
-      CREATE TABLE IF NOT EXISTS chargers (
-        id                SERIAL PRIMARY KEY,
-        charger_type      VARCHAR(50),
-        charger_number    VARCHAR(100) UNIQUE NOT NULL,
-        status            VARCHAR(50) DEFAULT 'New',
-        inspection_status VARCHAR(50),
-        return_reason     VARCHAR(100),
-        date_in           DATE,
-        date_dispatched   DATE,
-        client            VARCHAR(200),
-        dispatch_status   VARCHAR(50),
-        created_at        TIMESTAMP DEFAULT NOW(),
-        updated_at        TIMESTAMP DEFAULT NOW()
-      );
-    `);
-    console.log("✅  Schema ready (tables exist or were created)");
-  } catch (err) {
-    console.error("❌  Schema init failed:"); console.error(err);
-  }
-}
+//       CREATE TABLE IF NOT EXISTS chargers (
+//         id                SERIAL PRIMARY KEY,
+//         charger_type      VARCHAR(50),
+//         charger_number    VARCHAR(100) UNIQUE NOT NULL,
+//         status            VARCHAR(50) DEFAULT 'New',
+//         inspection_status VARCHAR(50),
+//         return_reason     VARCHAR(100),
+//         date_in           DATE,
+//         date_dispatched   DATE,
+//         client            VARCHAR(200),
+//         dispatch_status   VARCHAR(50),
+//         created_at        TIMESTAMP DEFAULT NOW(),
+//         updated_at        TIMESTAMP DEFAULT NOW()
+//       );
+//     `);
+//     console.log("✅  Schema ready (tables exist or were created)");
+//   } catch (err) {
+//     console.error("❌  Schema init failed:"); console.error(err);
+//   }
+// }
 
 // ══════════════════════════════════════════════════════════════════
 //  HEALTH CHECK  — this is what the frontend polls to detect DB
