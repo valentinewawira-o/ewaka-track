@@ -26,7 +26,7 @@ const pool = new Pool({
   ssl:      { rejectUnauthorized: false }
 });
 
-// ── Auto-create tables on startup ───────────────────────────────────
+// // ── Auto-create tables on startup ───────────────────────────────────
 // async function initSchema() {
 //   try {
 //     await pool.query(`
@@ -53,21 +53,20 @@ const pool = new Pool({
 //         updated_at      TIMESTAMP DEFAULT NOW()
 //       );
 
-//       // CREATE TABLE IF NOT EXISTS batteries (
-//       //   id                SERIAL PRIMARY KEY,
-//       //   battery_type      VARCHAR(50),
-//       //   battery_number    VARCHAR(100) UNIQUE NOT NULL,
-//       //   status            VARCHAR(50) DEFAULT 'New',
-//       //   assessment_statusVARCHAR(50),
-//       //   return_reason     VARCHAR(100),
-//       //   date_in           DATE,
-//       //   battery_option    VARCHAR(50),
-//       //   date_dispatched   DATE,
-//       //   client            VARCHAR(200),
-//       //   dispatch_status   VARCHAR(50),
-//       //   created_at        TIMESTAMP DEFAULT NOW(),
-//       //   updated_at        TIMESTAMP DEFAULT NOW()
-//       // );
+//       CREATE TABLE IF NOT EXISTS batteries (
+//         id                SERIAL PRIMARY KEY,
+//         battery_type      VARCHAR(50),
+//         battery_number    VARCHAR(100) UNIQUE NOT NULL,
+//         status            VARCHAR(50) DEFAULT 'New',
+//         assessment_statusVARCHAR(50),
+//         return_reason     VARCHAR(100),
+//         date_in           DATE,
+//         date_dispatched   DATE,
+//         client            VARCHAR(200),
+//         dispatch_status   VARCHAR(50),
+//         created_at        TIMESTAMP DEFAULT NOW(),
+//         updated_at        TIMESTAMP DEFAULT NOW()
+//       );
 
 //       CREATE TABLE IF NOT EXISTS chargers (
 //         id                SERIAL PRIMARY KEY,
@@ -329,8 +328,8 @@ app.get("/ip.html", (req, res) => {
 });
 
 // ── Start ────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, async () => {
   console.log(`🚀  eWAKA Track running → http://localhost:${PORT}`);
-  await initSchema();
+  // await initSchema();
 });
