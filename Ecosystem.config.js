@@ -19,11 +19,11 @@ module.exports = {
         NODE_ENV:     'production',
         PORT:         3001,
         // DB — override with your real .env values
-        DB_HOST:      '64.226.72.183',
-        DB_PORT:      5432,
-        DB_NAME:      'ekdb',
-        DB_USER:      'ekadmin',
-        DB_PASSWORD:  'StrongPGPass123'
+        // DB_HOST:      '',
+        // DB_PORT:      ,
+        // DB_NAME:      '',
+        // DB_USER:      '',
+        // DB_PASSWORD:  ''
       },
 
       // Logging
