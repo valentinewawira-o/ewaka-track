@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <meta name="viewport" content="width=1280"> -->
 <title>eWAKA Track · Inventory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -27,7 +28,7 @@
 /* ════════════════════ ROOT & RESET ════════════════════ */
 :root{
   --sb:#111827;--sb-w:242px;--acc:#f97316;--acc-d:rgba(249,115,22,.12);
-  --bg:#f2f4f8;--card:#ffffff;--bdr:#e2e8f0;--txt:#111827;
+  --bg:#f2f4f8;--card:#ffffff;--bdr:#39c915;--txt:#111827;
   --muted:#6b7280;--light:#9ca3af;--ok:#22c55e;--warn:#f59e0b;
   --err:#ef4444;--info:#3b82f6;--r:10px;
   --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
@@ -142,6 +143,28 @@ input.mn,td.mn{font-family:var(--fM);font-size:12px;letter-spacing:.3px}
 .tbb:hover{color:var(--txt)}.tbb.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:700}
 .tp{display:none}.tp.on{display:block}
 
+/* ════════════════════ LOGO ════════════════════ */
+.sb-logo-img{width:110px;height:auto;display:block;margin-bottom:6px;object-fit:contain}
+.lp-logo-img{width:140px;height:auto;display:block;margin:0 auto 10px;object-fit:contain}
+
+/* ════════════════════ RECORD FILTER BAR ════════════════════ */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid var(--bdr);border-radius:8px;margin-bottom:13px}
+.filter-bar label{font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.filter-bar select,.filter-bar input[type=date]{font-size:12.5px;padding:6px 10px;border:1.5px solid var(--bdr);border-radius:6px;background:#fff;width:auto}
+.filter-bar .btn{padding:6px 14px;font-size:12px}
+
+/* ════════════════════ DISPATCH DATE TABS ════════════════════ */
+.date-filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:13px}
+.dft{font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:20px;border:1.5px solid var(--bdr);background:#fff;color:var(--muted);cursor:pointer;transition:all .14s}
+.dft:hover{border-color:var(--acc);color:var(--acc)}
+.dft.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* ════════════════════ IN-OFFICE TABLE ════════════════════ */
+.office-sum td,.office-sum th{padding:8px 13px}
+tfoot td{font-weight:700;background:#f9fafb;border-top:2px solid var(--bdr)}
+
+/* ════════════════════ MISC', new_css + '/* ════════════════════ MISC')
+
 /* ════════════════════ BADGES ════════════════════ */
 .bdg{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
 .bdg::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.8}
@@ -206,7 +229,7 @@ tr:hover td{background:#fafbfc}
     </div>
     <button class="lp-btn" onclick="doLogin()">Sign In →</button>
     <div class="lp-err" id="lp-err">❌ Invalid username or password</div>
-    <div class="lp-hint">Demo accounts:<br><strong>admin</strong> / admin123 &nbsp;·&nbsp; <strong>staff</strong> / staff2025</div>
+    <!-- <div class="lp-hint">Demo accounts:<br><strong>admin</strong> / admin123 &nbsp;·&nbsp; <strong>staff</strong> / staff2025</div> -->
   </div>
 </div>
 
@@ -267,16 +290,40 @@ tr:hover td{background:#fafbfc}
   <!-- SUMMARY STAT CARDS -->
   <div class="sg" id="sg"></div>
   <!-- RECENT ACTIVITY -->
-  <div class="card"><div class="ct">🕐 Recent Stock Activity</div><div id="d-act"></div></div>
+  <!-- <div class="card"><div class="ct">🕐 Recent Stock Activity</div><div id="d-act"></div></div> -->
   <!-- FLEET BY MODEL -->
   <div class="card"><div class="ct">🏍️ Bikes — Stock In / Out by Model</div><div id="d-fleet"></div></div>
   <!-- ACCESSORIES BY MODEL -->
   <div class="card"><div class="ct">🔋⚡ Accessories — In / Out by Model</div><div id="d-acc"></div></div>
-</div>
+  <div class="card"><div class="ct">🏢 In-Office Inventory Summary</div><div id="d-inoffice"></div></div>
+  <!-- RECENT DISPATCHES -->
+  <div class="card"><div class="ct">🚚 Recent Dispatches</div>
+  <div class="date-filters" id="disp-date-filters">
+    <button class="dft on" onclick="setDispFilter(7,this)">Last 7 Days</button>
+    <button class="dft" onclick="setDispFilter(30,this)">Last 30 Days</button>
+    <button class="dft" onclick="setDispFilter(90,this)">Last 3 Months</button>
+    <button class="dft" onclick="setDispFilter(0,this)">All Time</button>
+  </div>
+  <div class="tb"><button class="tbb on" onclick="stab('dash-dr','bikes',this)">🏍️ Bikes</button>
+      <button class="tbb" onclick="stab('dash-dr','bats',this)">🔋 Batteries</button>
+      <button class="tbb" onclick="stab('dash-dr','chgs',this)">⚡ Chargers</button>
+  </div>
+  <div class="tp on" id="dash-dr-bikes"><div class="tw" id="d-disp-bk"></div></div>
+  <div class="tp" id="dash-dr-bats"><div class="tw" id="d-disp-ba"></div></div>
+  <div class="tp" id="dash-dr-chgs"><div class="tw" id="d-disp-ch"></div></div>
+  </div>
+  <!-- IN-OFFICE SUMMARY -->
+  <!-- <div class="card"><div class="ct">🏢 In-Office Inventory Summary</div><div id="d-inoffice"></div></div> -->
+  <!-- <div class="card"><div class="ct">🕐 Recent Stock-In Activity</div><div id="d-act"></div></div>
+  <div class="card"><div class="ct">🏍️ Bikes — Stock In / Out by Model</div><div id="d-fleet"></div></div>
+  <div class="card"><div class="ct">🔋⚡ Accessories — In / Out by Model</div><div id="d-acc"></div></div> -->
 
+</div>
+ 
+</div>  
 <!-- ──────────────────── ADD STOCK ──────────────────── -->
 <div class="pg" id="pg-add">
-  <div class="ph">
+<div class="ph">
     <div class="bc">Inventory → Add Stock</div>
     <h2>📦 Add to Inventory</h2>
     <p>Register bikes, batteries, or chargers arriving at the warehouse.</p>
@@ -295,8 +342,9 @@ tr:hover td{background:#fafbfc}
           <label>Bike Type <span class="req">*</span></label>
           <select id="a-btype" onchange="updPfx()">
             <option value="">— Select type —</option>
-            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option><option>Shujaa 2.0(v.1)</option>
             <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+            <option>Middrive</option>
           </select>
         </div>
         <div class="fi">
@@ -305,6 +353,7 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select status —</option>
             <option value="New">New</option>
             <option value="Returned">Returned</option>
+            <option value="Redispatch">Redispatch(dealer/office)</option>
           </select>
         </div>
         <div class="fi" id="add-asm-wrap" style="display:none">
@@ -360,8 +409,9 @@ tr:hover td{background:#fafbfc}
           <label>Battery Type <span class="req">*</span></label>
           <select id="a-batype" onchange="togglejembeBatFields()">
             <option value="">— Select type —</option>
-            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option><option>Shujaa 2.0(v.1)</option>
             <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+            <option>Middrive</option>
           </select>
         </div>
         <div class="fi" id="a-battery-fin-wrap" style="display:none">
@@ -379,6 +429,7 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select status —</option>
             <option value="New">New</option>
             <option value="Returned">Returned</option>
+            <option value="Redispatch">Redispatch(dealer/office)</option>
           </select>
         </div>
         <div class="fi" id="bat-assess-wrap" style="display:none">
@@ -417,8 +468,9 @@ tr:hover td{background:#fafbfc}
           <label>Charger Type <span class="req">*</span></label>
           <select id="a-ctype">
             <option value="">— Select type —</option>
-            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option><option>Shujaa 2.0(v.1)</option>
             <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+            <option>Middrive</option>
           </select>
         </div>
         <div class="fi">
@@ -427,6 +479,7 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select status —</option>
             <option value="New">New</option>
             <option value="Returned">Returned</option>
+            <option value="Redispatch">Redispatch(dealer/office)</option>
           </select>
         </div>
         <div class="fi" id="chg-inspect-wrap" style="display:none">
@@ -481,8 +534,48 @@ tr:hover td{background:#fafbfc}
           <label>Filter by Bike Type</label>
           <select id="db-type" onchange="refreshDispBikeSel()">
             <option value="">— All types —</option>
-            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option><option>Shujaa 2.0(v.1)</option>
             <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+            <option>Middrive</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Country Dispatched To <span class="req">*</span></label>
+          <select id="{p}country" onchange="toggleCountry('{p}')">
+            <option value="">— Select country —</option>
+            <option>Kenya</option><option>Rwanda</option>
+            <option>Burundi</option><option>DRC</option><option>Others</option>
+          </select>
+        </div>
+        <div class="fi" id="{p}kenya-town-wrap" style="display:none">
+          <label>Town <span class="req">*</span></label>
+          <select id="{p}kenya-town">
+            <option value="">— Select town —</option>
+            <option>Nairobi</option><option>Mombasa</option>
+            <option>Kisumu</option><option>Kakamega</option>
+          </select>
+        </div>
+        <div class="fi" id="{p}other-town-wrap" style="display:none">
+          <label>Town / Location <span class="req">*</span></label>
+          <input type="text" id="{p}other-town" placeholder="Enter town or city">
+        </div>
+        <div class="fi">
+          <label>Requested By (Team) <span class="req">*</span></label>
+          <select id="{p}req-team" onchange="toggleReqTeam('{p}')">
+            <option value="">— Select team —</option>
+            <option>Sales Team</option><option>Fleet Team</option>
+            <option>Technical Team</option><option>Management</option>
+          </select>
+        </div>
+        <div class="fi fw" id="{p}req-person-wrap" style="display:none">
+          <label>Person's Name <span class="req">*</span></label>
+          <input type="text" id="{p}req-person" placeholder="Enter person's name">
+        </div>
+        <div class="fi" id="{p}req-mgmt-wrap" style="display:none">
+          <label>Requested By (Management) <span class="req">*</span></label>
+          <select id="{p}req-mgmt">
+            <option value="">— Select —</option>
+            <option>Kwamboka</option><option>Jimmy</option><option>Celeste</option>
           </select>
         </div>
         <div class="fi">
@@ -566,8 +659,48 @@ tr:hover td{background:#fafbfc}
           <label>Filter by Battery Type</label>
           <select id="dba-type" onchange="refreshDispBatSel()">
             <option value="">— All types —</option>
-            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option><option>Shujaa 2.0(v.1)</option>
             <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+            <option>Middrive</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Country Dispatched To <span class="req">*</span></label>
+          <select id="{p}country-ba" onchange="batoggleCountry('{p}')">
+            <option value="">— Select country —</option>
+            <option>Kenya</option><option>Rwanda</option>
+            <option>Burundi</option><option>DRC</option><option>Others</option>
+          </select>
+        </div>
+        <div class="fi" id="{p}kenya-town-wrap-ba" style="display:none">
+          <label>Town <span class="req">*</span></label>
+          <select id="{p}kenya-town-ba">
+            <option value="">— Select town —</option>
+            <option>Nairobi</option><option>Mombasa</option>
+            <option>Kisumu</option><option>Kakamega</option>
+          </select>
+        </div>
+        <div class="fi" id="{p}other-town-wrap-ba" style="display:none">
+          <label>Town / Location <span class="req">*</span></label>
+          <input type="text" id="{p}other-town-ba" placeholder="Enter town or city">
+        </div>
+        <div class="fi">
+          <label>Requested By (Team) <span class="req">*</span></label>
+          <select id="{p}req-team-ba" onchange="batoggleReqTeam('{p}')">
+            <option value="">— Select team —</option>
+            <option>Sales Team</option><option>Fleet Team</option>
+            <option>Technical Team</option><option>Management</option>
+          </select>
+        </div>
+        <div class="fi fw" id="{p}req-person-wrap-ba" style="display:none">
+          <label>Person's Name <span class="req">*</span></label>
+          <input type="text" id="{p}req-person-ba" placeholder="Enter person's name">
+        </div>
+        <div class="fi" id="{p}req-mgmt-wrap-ba" style="display:none">
+          <label>Requested By (Management) <span class="req">*</span></label>
+          <select id="{p}req-mgmt-ba">
+            <option value="">— Select —</option>
+            <option>Kwamboka</option><option>Jimmy</option><option>Celeste</option>
           </select>
         </div>
         <div class="fi">
@@ -642,8 +775,48 @@ tr:hover td{background:#fafbfc}
           <label>Filter by Charger Type</label>
           <select id="dch-type" onchange="refreshDispChgSel()">
             <option value="">— All types —</option>
-            <option>Jasiri</option><option>Shujaa 2.0</option>
+            <option>Jasiri</option><option>Shujaa 2.0</option><option>Shujaa 2.0(v.1)</option>
             <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+            <option>Middrive</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>Country Dispatched To <span class="req">*</span></label>
+          <select id="{p}country-ch" onchange="chtoggleCountry('{p}')">
+            <option value="">— Select country —</option>
+            <option>Kenya</option><option>Rwanda</option>
+            <option>Burundi</option><option>DRC</option><option>Others</option>
+          </select>
+        </div>
+        <div class="fi" id="{p}kenya-town-wrap-ch" style="display:none">
+          <label>Town <span class="req">*</span></label>
+          <select id="{p}kenya-town-ch">
+            <option value="">— Select town —</option>
+            <option>Nairobi</option><option>Mombasa</option>
+            <option>Kisumu</option><option>Kakamega</option>
+          </select>
+        </div>
+        <div class="fi" id="{p}other-town-wrap-ch" style="display:none">
+          <label>Town / Location <span class="req">*</span></label>
+          <input type="text" id="{p}other-town-ch" placeholder="Enter town or city">
+        </div>
+        <div class="fi">
+          <label>Requested By (Team) <span class="req">*</span></label>
+          <select id="{p}req-team-ch" onchange="chtoggleReqTeam('{p}')">
+            <option value="">— Select team —</option>
+            <option>Sales Team</option><option>Fleet Team</option>
+            <option>Technical Team</option><option>Management</option>
+          </select>
+        </div>
+        <div class="fi fw" id="{p}req-person-wrap-ch" style="display:none">
+          <label>Person's Name <span class="req">*</span></label>
+          <input type="text" id="{p}req-person-ch" placeholder="Enter person's name">
+        </div>
+        <div class="fi" id="{p}req-mgmt-wrap-ch" style="display:none">
+          <label>Requested By (Management) <span class="req">*</span></label>
+          <select id="{p}req-mgmt-ch">
+            <option value="">— Select —</option>
+            <option>Kwamboka</option><option>Jimmy</option><option>Celeste</option>
           </select>
         </div>
         <div class="fi">
@@ -799,7 +972,26 @@ tr:hover td{background:#fafbfc}
       <button class="tbb" onclick="stab('rec','bats',this)">🔋 Batteries</button>
       <button class="tbb" onclick="stab('rec','chgs',this)">⚡ Chargers</button>
     </div>
+
+    
     <div class="tp on" id="rec-bikes">
+      <div class="filter-bar">
+        <label>Status:</label>
+        <select id="r-fstat" onchange="renBkTbl()">
+          <option value="">All</option>
+          <option>Unassembled</option><option>Assembled</option>
+          <option>Dispatched</option><option>Returned</option><option>Faulty</option>
+        </select>
+        <label>Type:</label>
+        <select id="r-ftype" onchange="renBkTbl()">
+          <option value="">All</option>
+          <option>Jasiri</option><option>Shujaa 2.0</option>
+          <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+        </select>
+        <label>From:</label><input type="date" id="r-fdfrom" onchange="renBkTbl()">
+        <label>To:</label><input type="date" id="r-fdto" onchange="renBkTbl()">
+        <button class="btn bs sm" onclick="clrRecFilter()">✕ Clear</button>
+      </div>
       <div class="srch">
         <input type="text" id="r-sbk" placeholder="Search bikes…" oninput="renBkTbl()">
         <button class="btn bs sm" onclick="xport('bikes')">⬇ Export CSV</button>
@@ -807,7 +999,25 @@ tr:hover td{background:#fafbfc}
       </div>
       <div class="tw" id="r-bktbl"></div>
     </div>
-    <div class="tp" id="rec-bats">
+    
+    <div class="tp " id="rec-bats">
+      <div class="filter-bar">
+        <!-- <label>Status:</label>
+        <select id="r-fstat-b" onchange="renBaTbl()">
+          <option value="">All</option>
+          <option>Assessed</option><option>Not Assessed</option>
+          
+        </select> -->
+        <label>Type:</label>
+        <select id="r-ftype-b" onchange="renBaTbl()">
+          <option value="">All</option>
+          <option>Jasiri</option><option>Shujaa 2.0</option>
+          <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+        </select>
+        <label>From:</label><input type="date" id="r-fdfrom-b" onchange="renBaTbl()">
+        <label>To:</label><input type="date" id="r-fdto-b" onchange="renBaTbl()">
+        <button class="btn bs sm" onclick="clrRecFilter()">✕ Clear</button>
+      </div>
       <div class="srch">
         <input type="text" id="r-sba" placeholder="Search batteries…" oninput="renBaTbl()">
         <button class="btn bs sm" onclick="xport('batteries')">⬇ Export CSV</button>
@@ -815,15 +1025,34 @@ tr:hover td{background:#fafbfc}
       </div>
       <div class="tw" id="r-batbl"></div>
     </div>
+
+      
     <div class="tp" id="rec-chgs">
+      <div class="filter-bar">
+        <!-- <label>Status:</label>
+        <!-- <select id="r-fstat-c" onchange="renChTbl()">
+          <option value="">All</option>
+          <option>Unassembled</option><option>Assembled</option>
+          <option>Dispatched</option><option>Returned</option><option>Faulty</option>
+        </select> -->
+        <label>Type:</label>
+        <select id="r-ftype-c" onchange="renChTbl()">
+          <option value="">All</option>
+          <option>Jasiri</option><option>Shujaa 2.0</option>
+          <option>Shujaa 1.0</option><option>Buga</option><option>Jembe</option>
+        </select>
+        <label>From:</label><input type="date" id="r-fdfrom-c" onchange="renChTbl()">
+        <label>To:</label><input type="date" id="r-fdto-c" onchange="renChTbl()">
+        <button class="btn bs sm" onclick="clrRecFilter()">✕ Clear</button>
+      </div>
       <div class="srch">
         <input type="text" id="r-sch" placeholder="Search chargers…" oninput="renChTbl()">
         <button class="btn bs sm" onclick="xport('chargers')">⬇ Export CSV</button>
         <button class="btn bs sm" onclick="trigImp('chargers')">⬆ Import CSV</button>
       </div>
       <div class="tw" id="r-chtbl"></div>
-    </div>
-  </div>
+    </div>    
+</div>
   <div class="card" style="border-color:#fee2e2">
     <div class="ct" style="color:var(--err)">⚠️ Data Management</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -847,11 +1076,11 @@ tr:hover td{background:#fafbfc}
 //  Falls back to localStorage when the backend is unreachable.
 // ══════════════════════════════════════════════════════════════
 const DB_CONFIG = {
-  host:     '64.226.72.183',
-  port:     5432,
-  database: 'ekdb',
-  user:     'ekadmin',
-  password: 'StrongPGPass123',
+  // host:     '',
+  // port:     ,
+  // database: '',
+  // user:     '',
+  // password: '',
   ssl:      true,
   api:      'http://localhost:3001/api'
   // Auto-detect: works whether opened as file:// or served by Express
@@ -911,7 +1140,7 @@ function dbRetry(){ DB.retry(); }
 //  AUTH
 // ══════════════════════════════════════════════════════════════
 const USERS=[
-  {u:'admin',   p:'admin123',  name:'Admin User',       role:'Admin'},
+  {u:'admin',   p:'inventory@2025',  name:'Admin User',       role:'Admin'},
   {u:'staff',   p:'staff2025', name:'Inventory Staff',  role:'Staff'}
 ];
 const SESS_KEY='ewaka_sess';
@@ -1084,13 +1313,14 @@ function setAllDates(){
 // ══════════════════════════════════════════════════════════════
 //  ADD STOCK — BIKE
 // ══════════════════════════════════════════════════════════════
-const CP={ 'Jasiri':['R5HA1KZ18R','R38CG0005PA'], 'Shujaa 2.0':['MB24A'], 'Shujaa 1.0':['2370223021'], 'Buga':['MB22A'], 'Jembe':['R4DLDMJ88S'] };
-const PP={ 'Jasiri':['KMGM'], 'Shujaa 2.0':[''], 'Shujaa 1.0':[''], 'Buga':[''], 'Jembe':[''] };
+const CP={ 'Jasiri':['R5HA1KZ','R38CG000'], 'Shujaa 2.0':['MB24A'], 'Shujaa 2.0(v.1)':['MB23B'], 'Shujaa 1.0':['2370223021'], 'Buga':['MB22A'], 'Jembe':['R4DLDMJ88S'],'Middrive':['R38CG000'] };
+const PP={ 'Jasiri':['KMGM','KMGT'], 'Shujaa 2.0':[''], 'Shujaa 2.0(v.1)':[''], 'Shujaa 1.0':[''], 'Buga':[''], 'Jembe':['KMGW'], 'Middrive':[''] };
 
 function toggleAddStatus(){
   const s=document.getElementById('a-bstat').value;
   document.getElementById('add-asm-wrap').style.display = s==='New'?'':'none';
   document.getElementById('add-ret-wrap').style.display = s==='Returned'?'':'none';
+  // document.getElementById('add-red-wrap').style.display = s==='Redispatch'?'':'none';
 }
 function updPfx(){
   const bt=document.getElementById('a-btype').value;
@@ -1171,6 +1401,7 @@ function toggleBatFields(){
   const s=document.getElementById('d-battery-status').value;
   document.getElementById('bat-assess-wrap').style.display = s==='New'?'':'none';
   document.getElementById('bat-return-wrap').style.display = s==='Returned'?'':'none';
+  // document.getElementById('bat-red-wrap').style.display = s==='Redispatch'?'':'none';
 }
 function togglejembeBatFields(){
   const btype=document.getElementById('a-batype').value;
@@ -1214,6 +1445,7 @@ function toggleChgFields(){
   const s=document.getElementById('d-charger-status').value;
   document.getElementById('chg-inspect-wrap').style.display = s==='New'?'':'none';
   document.getElementById('chg-return-wrap').style.display  = s==='Returned'?'':'none';
+  // document.getElementById('chg-red-wrap').style.display = s==='Redispatch'?'':'none';
 }
 function resetChg(){
   ['a-ctype','d-charger-status','d-charger-assessment','d-charger-return'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
@@ -1249,13 +1481,14 @@ function addChg(){
 //  DISPATCH — SHARED HELPERS
 // ══════════════════════════════════════════════════════════════
 function _hideConditionals(prefix){
-  ['sold-wrap','fin-wrap','lease-wrap','client-wrap','office-wrap','office-pur-wrap']
+  ['sold-wrap','fin-wrap','{p}kenya-town-wrap','{p}other-town-wrap','{p}req-person-wrap','{p}req-mgmt-wrap','{p}lease-wrap','client-wrap','office-wrap','office-pur-wrap']
     .forEach(s=>{ const el=document.getElementById(prefix+s); if(el) el.style.display='none'; });
 }
 function _showByStatus(prefix, stat){
   _hideConditionals(prefix);
   const show=(...ids)=>ids.forEach(id=>{ const el=document.getElementById(prefix+id); if(el) el.style.display=''; });
   if(stat==='Sold')     { show('sold-wrap','client-wrap'); }
+  if(stat==='Kenya')   { show('{p}kenya-town-wrap','{p}req-person-wrap'); }
   else if(stat==='Leased')   { show('lease-wrap','client-wrap'); }
   else if(stat==='Repaired') { show('client-wrap'); }
   else if(stat==='In-Office'){ show('office-wrap','office-pur-wrap'); }
@@ -1273,6 +1506,99 @@ function refreshDispBikeSel(){
   bikes.forEach(b=>sel.innerHTML+=`<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}${b.number_plate?' · '+b.number_plate:''}</option>`);
   document.getElementById('db-atype').value='';
   document.getElementById('db-plate').value='';
+}
+
+//  DISPATCH EXTRA — country / town / requested-by toggles
+// ══════════════════════════════════════════════════════════════
+function toggleCountry(pfx){
+  const c=document.getElementById(pfx+'country').value;
+  document.getElementById(pfx+'kenya-town-wrap').style.display  = c==='Kenya'?'':'none';
+  document.getElementById(pfx+'other-town-wrap').style.display  = (c&&c!=='Kenya')?'':'none';
+  if(c!=='Kenya') { const el=document.getElementById(pfx+'kenya-town'); if(el) el.value=''; }
+  if(c==='Kenya') { const el=document.getElementById(pfx+'other-town'); if(el) el.value=''; }
+}
+function toggleReqTeam(pfx){
+  const t=document.getElementById(pfx+'req-team').value;
+  document.getElementById(pfx+'req-person-wrap').style.display = ['Sales Team','Fleet Team','Technical Team'].includes(t)?'':'none';
+  document.getElementById(pfx+'req-mgmt-wrap').style.display   = t==='Management'?'':'none';
+}
+function _getLocation(pfx){
+  const c=document.getElementById(pfx+'country').value;
+  const kt=document.getElementById(pfx+'kenya-town').value;
+  const ot=(document.getElementById(pfx+'other-town').value||'').trim();
+  return { country:c, town: c==='Kenya'?kt:ot };
+}
+function _getReqBy(pfx){
+  const team=document.getElementById(pfx+'req-team').value;
+  const person=(document.getElementById(pfx+'req-person').value||'').trim();
+  const mgmt=document.getElementById(pfx+'req-mgmt').value;
+  return { requested_by_team:team, requested_by_person: team==='Management'?mgmt:person };
+}
+function _hideExtraDisp(pfx){
+  ['country','kenya-town','other-town','req-team','req-person','req-mgmt'].forEach(id=>{
+    const el=document.getElementById(pfx+id); if(el) el.value='';
+  });
+  ['kenya-town-wrap','other-town-wrap','req-person-wrap','req-mgmt-wrap'].forEach(id=>{
+    const el=document.getElementById(pfx+id); if(el) el.style.display='none';
+  });
+}
+// dispatch country battery
+function batoggleCountry(pfx){
+  const c=document.getElementById(pfx+'country-ba').value;
+  document.getElementById(pfx+'kenya-town-wrap-ba').style.display  = c==='Kenya'?'':'none';
+  document.getElementById(pfx+'other-town-wrap-ba').style.display  = (c&&c!=='Kenya')?'':'none';
+  if(c!=='Kenya') { const el=document.getElementById(pfx+'kenya-town-ba'); if(el) el.value=''; }
+  if(c==='Kenya') { const el=document.getElementById(pfx+'other-town-ba'); if(el) el.value=''; }
+}
+function batoggleReqTeam(pfx){
+  const t=document.getElementById(pfx+'req-team-ba').value;
+  document.getElementById(pfx+'req-person-wrap-ba').style.display = ['Sales Team','Fleet Team','Technical Team'].includes(t)?'':'none';
+  document.getElementById(pfx+'req-mgmt-wrap-ba').style.display   = t==='Management'?'':'none';
+}
+function _getLocation(pfx){
+  const c=document.getElementById(pfx+'country-ba').value;
+  const kt=document.getElementById(pfx+'kenya-town-ba').value;
+  const ot=(document.getElementById(pfx+'other-town-ba').value||'').trim();
+  return { country:c, town: c==='Kenya'?kt:ot };
+}
+function _getReqBy(pfx){
+  const team=document.getElementById(pfx+'req-team-ba').value;
+  const person=(document.getElementById(pfx+'req-person-ba').value||'').trim();
+  const mgmt=document.getElementById(pfx+'req-mgmt-ba').value;
+  return { requested_by_team:team, requested_by_person: team==='Management'?mgmt:person };
+}
+// chargers by location and req-by
+function chtoggleCountry(pfx){
+  const c=document.getElementById(pfx+'country-ch').value;
+  document.getElementById(pfx+'kenya-town-wrap-ch').style.display  = c==='Kenya'?'':'none';
+  document.getElementById(pfx+'other-town-wrap-ch').style.display  = (c&&c!=='Kenya')?'':'none';
+  if(c!=='Kenya') { const el=document.getElementById(pfx+'kenya-town-ch'); if(el) el.value=''; }
+  if(c==='Kenya') { const el=document.getElementById(pfx+'other-town-ch'); if(el) el.value=''; }
+}
+function chtoggleReqTeam(pfx){
+  const t=document.getElementById(pfx+'req-team-ch').value;
+  document.getElementById(pfx+'req-person-wrap-ch').style.display = ['Sales Team','Fleet Team','Technical Team'].includes(t)?'':'none';
+  document.getElementById(pfx+'req-mgmt-wrap-ch').style.display   = t==='Management'?'':'none';
+}
+function _getLocation(pfx){
+  const c=document.getElementById(pfx+'country-ch').value;
+  const kt=document.getElementById(pfx+'kenya-town-ch').value;
+  const ot=(document.getElementById(pfx+'other-town-ch').value||'').trim();
+  return { country:c, town: c==='Kenya'?kt:ot };
+}
+function _getReqBy(pfx){
+  const team=document.getElementById(pfx+'req-team-ch').value;
+  const person=(document.getElementById(pfx+'req-person-ch').value||'').trim();
+  const mgmt=document.getElementById(pfx+'req-mgmt-ch').value;
+  return { requested_by_team:team, requested_by_person: team==='Management'?mgmt:person };
+}
+function _hideExtraDisp(pfx){
+  ['country-ch','kenya-town-ch','other-town-ch','req-team-ch','req-person-ch','req-mgmt-ch'].forEach(id=>{
+    const el=document.getElementById(pfx+id); if(el) el.value='';
+  });
+  ['kenya-town-wrap-ch','other-town-wrap-ch','req-person-wrap-ch','req-mgmt-wrap-ch'].forEach(id=>{
+    const el=document.getElementById(pfx+id); if(el) el.style.display='none';
+  });
 }
 function fillBikeDisp(){
   const cn=document.getElementById('db-sel').value;
@@ -1307,18 +1633,39 @@ function doDispBike(){
   if(stat==='Leased'&&!leaseType) return toast('Please select leasing type.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
   if(stat==='In-Office'&&!officeLoc) return toast('Please select office location.','er');
+  // const data=gd();
+  // const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
+  // if(idx<0) return toast('Bike not found!','er');
+  // const dispatched={status:'Dispatched',dispatch_status:stat,sold_type:soldType,
+  //   finance_company:finance,lease_type:leaseType,
+  //   client:stat==='In-Office'?officeLoc:client,
+  //   office_location:officeLoc,office_purpose:officePur,date_dispatched:dd};
+  // Object.assign(data.bikes[idx],dispatched);
+  // sd(data);
+  // DB.put('bikes',cn,data.bikes[idx]);
+  // toast(`${cn} dispatched → ${stat} ✅`,'ok');
+  // clrBikeDisp(); refreshDispBikeSel(); renDispBkTbl();
+  const loc=_getLocation('db-'), req=_getReqBy('db-');
+  if(!loc.country) return toast('Please select a country.','er');
+  if(loc.country==='Kenya'&&!loc.town) return toast('Please select a town.','er');
+  if(loc.country!=='Kenya'&&!loc.town) return toast('Please enter a town or location.','er');
+  if(!req.requested_by_team) return toast('Please select the requesting team.','er');
+  if(['Sales Team','Fleet Team','Technical Team'].includes(req.requested_by_team)&&!req.requested_by_person) return toast('Please enter the person\\ name.','er');
+  if(req.requested_by_team==='Management'&&!req.requested_by_person) return toast('Please select the manager.','er');
   const data=gd();
   const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
   if(idx<0) return toast('Bike not found!','er');
   const dispatched={status:'Dispatched',dispatch_status:stat,sold_type:soldType,
     finance_company:finance,lease_type:leaseType,
     client:stat==='In-Office'?officeLoc:client,
-    office_location:officeLoc,office_purpose:officePur,date_dispatched:dd};
+    office_location:officeLoc,office_purpose:officePur,date_dispatched:dd,
+    country:loc.country, town:loc.town,
+    requested_by_team:req.requested_by_team, requested_by_person:req.requested_by_person};
   Object.assign(data.bikes[idx],dispatched);
   sd(data);
   DB.put('bikes',cn,data.bikes[idx]);
   toast(`${cn} dispatched → ${stat} ✅`,'ok');
-  clrBikeDisp(); refreshDispBikeSel(); renDispBkTbl();
+  clrBikeDisp(); refreshDispBikeSel(); renDispBkTbl(); renDashDispatches();
 }
 function clrBikeDisp(){
   ['db-type','db-sel','db-atype','db-plate','db-stat','db-sold-type','db-finance','db-lease-type','db-client','db-office-loc','db-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
@@ -1354,12 +1701,27 @@ function doDispBat(){
   const data=gd();
   const idx=data.batteries.findIndex(b=>b.battery_number===num);
   if(idx<0) return toast('Battery not found!','er');
+  // Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,
+  //   client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
+  // sd(data);
+  // DB.put('batteries',num,data.batteries[idx]);
+  // toast(`Battery ${num} dispatched → ${stat} ✅`,'ok');
+  // clrBatDisp(); refreshDispBatSel(); renDispBaTbl();
+  const locBa=_getLocation('dba-'), reqBa=_getReqBy('dba-');
+  if(!locBa.country) return toast('Please select a country.','er');
+  if(locBa.country==='Kenya'&&!locBa.town) return toast('Please select a town.','er');
+  if(locBa.country!=='Kenya'&&!locBa.town) return toast('Please enter a town or location.','er');
+  if(!reqBa.requested_by_team) return toast('Please select the requesting team.','er');
+  if(['Sales Team','Fleet Team','Technical Team'].includes(reqBa.requested_by_team)&&!reqBa.requested_by_person) return toast('Please enter the persons name.','er');
+  if(reqBa.requested_by_team==='Management'&&!reqBa.requested_by_person) return toast('Please select the manager.','er');
   Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,
-    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
+    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd,
+    country:locBa.country, town:locBa.town,
+    requested_by_team:reqBa.requested_by_team, requested_by_person:reqBa.requested_by_person});
   sd(data);
   DB.put('batteries',num,data.batteries[idx]);
   toast(`Battery ${num} dispatched → ${stat} ✅`,'ok');
-  clrBatDisp(); refreshDispBatSel(); renDispBaTbl();
+  clrBatDisp(); refreshDispBatSel(); renDispBaTbl(); renDashDispatches();
 }
 function clrBatDisp(){
   ['dba-type','dba-sel','dba-stat','dba-sold-type','dba-finance','dba-lease-type','dba-client','dba-office-loc','dba-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
@@ -1395,12 +1757,27 @@ function doDispChg(){
   const data=gd();
   const idx=data.chargers.findIndex(c=>c.charger_number===num);
   if(idx<0) return toast('Charger not found!','er');
+  // Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,
+  //   client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
+  // sd(data);
+  // DB.put('chargers',num,data.chargers[idx]);
+  // toast(`Charger ${num} dispatched → ${stat} ✅`,'ok');
+  // clrChgDisp(); refreshDispChgSel(); renDispChTbl();
+  const locCh=_getLocation('dch-'), reqCh=_getReqBy('dch-');
+  if(!locCh.country) return toast('Please select a country.','er');
+  if(locCh.country==='Kenya'&&!locCh.town) return toast('Please select a town.','er');
+  if(locCh.country!=='Kenya'&&!locCh.town) return toast('Please enter a town or location.','er');
+  if(!reqCh.requested_by_team) return toast('Please select the requesting team.','er');
+  if(['Sales Team','Fleet Team','Technical Team'].includes(reqCh.requested_by_team)&&!reqCh.requested_by_person) return toast('Please enter the person name.','er');
+  if(reqCh.requested_by_team==='Management'&&!reqCh.requested_by_person) return toast('Please select the manager.','er');
   Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,
-    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
+    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd,
+    country:locCh.country, town:locCh.town,
+    requested_by_team:reqCh.requested_by_team, requested_by_person:reqCh.requested_by_person});
   sd(data);
   DB.put('chargers',num,data.chargers[idx]);
   toast(`Charger ${num} dispatched → ${stat} ✅`,'ok');
-  clrChgDisp(); refreshDispChgSel(); renDispChTbl();
+  clrChgDisp(); refreshDispChgSel(); renDispChTbl(); renDashDispatches();
 }
 function clrChgDisp(){
   ['dch-type','dch-sel','dch-stat','dch-sold-type','dch-finance','dch-lease-type','dch-client','dch-office-loc','dch-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
@@ -1420,10 +1797,16 @@ function renDispBkTbl(){
   const rows=gd().bikes.filter(b=>b.status==='Dispatched').filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
   const w=document.getElementById('dr-bktbl');
   if(!rows.length){ w.innerHTML=es('🚚','No dispatched bikes yet.'); return; }
-  w.innerHTML=`<table><thead><tr><th>Chassis No.</th><th>Type</th><th>Plate</th><th>Dispatch Type</th><th>Client</th><th>Sold Type</th><th>Finance Co.</th><th>Date Out</th></tr></thead><tbody>
+  // w.innerHTML=`<table><thead><tr><th>Chassis No.</th><th>Type</th><th>Plate</th><th>Dispatch Type</th><th>Client</th><th>Sold Type</th><th>Finance Co.</th><th>Date Out</th></tr></thead><tbody>
+  //   ${rows.map(b=>`<tr><td class="mn">${b.chassis_no}</td><td>${b.bike_type}</td><td class="mn">${b.number_plate||'—'}</td>
+  //   <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.client||'—'}</td>
+  //   <td>${b.sold_type||'—'}</td><td>${b.finance_company||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}
+  // </tbody></table>`
+   w.innerHTML=`<table><thead><tr><th>Chassis No.</th><th>Type</th><th>Plate</th><th>Dispatch</th><th>Country</th><th>Town</th><th>Client</th><th>Requested By</th><th>Date Out</th></tr></thead><tbody>
     ${rows.map(b=>`<tr><td class="mn">${b.chassis_no}</td><td>${b.bike_type}</td><td class="mn">${b.number_plate||'—'}</td>
-    <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.client||'—'}</td>
-    <td>${b.sold_type||'—'}</td><td>${b.finance_company||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}
+    <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.country||'—'}</td><td>${b.town||'—'}</td>
+    <td>${b.client||'—'}</td><td>${b.requested_by_person?b.requested_by_person+' ('+b.requested_by_team+')':b.requested_by_team||'—'}</td>
+    <td>${b.date_dispatched||'—'}</td></tr>`).join('')}
   </tbody></table>`;
 }
 function renDispBaTbl(){
@@ -1431,9 +1814,15 @@ function renDispBaTbl(){
   const rows=gd().batteries.filter(b=>b.status==='Dispatched').filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
   const w=document.getElementById('dr-batbl');
   if(!rows.length){ w.innerHTML=es('🔋','No dispatched batteries yet.'); return; }
-  w.innerHTML=`<table><thead><tr><th>Battery No.</th><th>Type</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
+  // w.innerHTML=`<table><thead><tr><th>Battery No.</th><th>Type</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
+  //   ${rows.map(b=>`<tr><td class="mn">${b.battery_number}</td><td>${b.battery_type}</td>
+  //   <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.client||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}
+  // </tbody></table>`;
+   w.innerHTML=`<table><thead><tr><th>Battery No.</th><th>Type</th><th>Dispatch</th><th>Country</th><th>Town</th><th>Client</th><th>Requested By</th><th>Date Out</th></tr></thead><tbody>
     ${rows.map(b=>`<tr><td class="mn">${b.battery_number}</td><td>${b.battery_type}</td>
-    <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.client||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}
+    <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.country||'—'}</td><td>${b.town||'—'}</td>
+    <td>${b.client||'—'}</td><td>${b.requested_by_person?b.requested_by_person+' ('+b.requested_by_team+')':b.requested_by_team||'—'}</td>
+    <td>${b.date_dispatched||'—'}</td></tr>`).join('')}
   </tbody></table>`;
 }
 function renDispChTbl(){
@@ -1502,8 +1891,21 @@ function renAsmTbls(){
 //  RECORDS TABLES
 // ══════════════════════════════════════════════════════════════
 function renBkTbl(){
+  // const q=(document.getElementById('r-sbk')?.value||'').toLowerCase();
+  // const bikes=gd().bikes.filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
   const q=(document.getElementById('r-sbk')?.value||'').toLowerCase();
-  const bikes=gd().bikes.filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
+  const fStat=document.getElementById('r-fstat')?.value||'';
+  const fType=document.getElementById('r-ftype')?.value||'';
+  const fFrom=document.getElementById('r-fdfrom')?.value||'';
+  const fTo  =document.getElementById('r-fdto')?.value||'';
+  const bikes=gd().bikes.filter(b=>{
+    if(q && !JSON.stringify(b).toLowerCase().includes(q)) return false;
+    if(fStat && b.status!==fStat) return false;
+    if(fType && b.bike_type!==fType) return false;
+    if(fFrom && (b.date_in||'')<fFrom) return false;
+    if(fTo   && (b.date_in||'')>fTo)   return false;
+    return true;
+  });
   const w=document.getElementById('r-bktbl');
   if(!bikes.length){ w.innerHTML=es('🏍️','No bikes in inventory.'); return; }
   w.innerHTML=`<table><thead><tr><th>Date In</th><th>Type</th><th>Chassis No.</th><th>Plate</th><th>Status</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
@@ -1513,8 +1915,21 @@ function renBkTbl(){
     <td>${b.client||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}</tbody></table>`;
 }
 function renBaTbl(){
+  // const q=(document.getElementById('r-sba')?.value||'').toLowerCase();
+  // const bats=gd().batteries.filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
   const q=(document.getElementById('r-sba')?.value||'').toLowerCase();
-  const bats=gd().batteries.filter(b=>!q||JSON.stringify(b).toLowerCase().includes(q));
+  // const fStat=document.getElementById('r-fstat-b')?.value||'';
+  const fType=document.getElementById('r-ftype-b')?.value||'';
+  const fFrom=document.getElementById('r-fdfrom-b')?.value||'';
+  const fTo  =document.getElementById('r-fdto-b')?.value||'';
+  const bats=gd().batteries.filter(b=>{
+    if(q && !JSON.stringify(b).toLowerCase().includes(q)) return false;
+    // if(fStat && b.status!==fStat) return false;
+    if(fType && b.battery_type!==fType) return false;
+    if(fFrom && (b.date_in||'')<fFrom) return false;
+    if(fTo   && (b.date_in||'')>fTo)   return false;
+    return true;
+  });
   const w=document.getElementById('r-batbl');
   if(!bats.length){ w.innerHTML=es('🔋','No batteries in inventory.'); return; }
   w.innerHTML=`<table><thead><tr><th>Date In</th><th>Type</th><th>Battery No.</th><th>Status</th><th>Battery Option</th><th> Battery Assessment</th><th>Return Reason</th><th>Date Out</th><th>Client</th></tr></thead><tbody>
@@ -1523,8 +1938,21 @@ function renBaTbl(){
     <td>${b.date_dispatched||'—'}</td><td>${b.client||'—'}</td></tr>`).join('')}</tbody></table>`;
 }
 function renChTbl(){
+  // const q=(document.getElementById('r-sch')?.value||'').toLowerCase();
+  // const chgs=gd().chargers.filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q));
   const q=(document.getElementById('r-sch')?.value||'').toLowerCase();
-  const chgs=gd().chargers.filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q));
+  const fStat=document.getElementById('r-fstat-c')?.value||'';
+  const fType=document.getElementById('r-ftype-c')?.value||'';
+  const fFrom=document.getElementById('r-fdfrom-c')?.value||'';
+  const fTo  =document.getElementById('r-fdto-c')?.value||'';
+  const chgs=gd().chargers.filter(c=>{
+    if(q && !JSON.stringify(c).toLowerCase().includes(q)) return false;
+    if(fStat && c.status!==fStat) return false;
+    if(fType && c.charger_type!==fType) return false;
+    if(fFrom && (c.date_in||'')<fFrom) return false;
+    if(fTo   && (c.date_in||'')>fTo)   return false;
+    return true;
+  });
   const w=document.getElementById('r-chtbl');
   if(!chgs.length){ w.innerHTML=es('⚡','No chargers in inventory.'); return; }
   w.innerHTML=`<table><thead><tr><th>Date In</th><th>Type</th><th>Charger No.</th><th>Status</th><th>Inspection</th><th>Return Reason</th><th>Date Out</th><th>Client</th></tr></thead><tbody>
@@ -1537,7 +1965,7 @@ function renChTbl(){
 //  DASHBOARD (Stock In / Out per type + accessories per model)
 // ══════════════════════════════════════════════════════════════
 const IN_STATS = ['Unassembled','Assembled','Returned','Faulty','New','Assessed','Not Assessed','Tested','Not Tested'];
-const ALL_TYPES = ['Jasiri','Shujaa 2.0','Shujaa 1.0','Buga','Jembe'];
+const ALL_TYPES = ['Jasiri','Shujaa 2.0','Shujaa 1.0','Buga','Jembe','Middrive','Shujaa 2.0(v.1)'];
 
 function renDash(){
   const data=gd();
@@ -1596,13 +2024,13 @@ function renDash(){
     <div class="sc" style="--scol:#ef4444"><div class="sl">Faulty / Returned</div><div class="sv">${fa}</div><div class="ss">Needs attention</div></div>
     <div class="sc" style="--scol:#8b5cf6"><div class="sl">Accessories Total</div><div class="sv">${bats.length+chgs.length}</div><div class="ss">${bats.length} bats · ${chgs.length} chgs</div></div>`;
 
-  // ─── RECENT ACTIVITY ───
-  const recent=[...bikes].sort((a,b)=>(b.date_in||'').localeCompare(a.date_in||'')).slice(0,10);
-  const act=document.getElementById('d-act');
-  act.innerHTML=!recent.length?es('📭','No activity yet. Add stock to get started!'):
-    `<div class="tw"><table><thead><tr><th>Date In</th><th>Type</th><th>Chassis No.</th><th>Plate</th><th>Status</th></tr></thead><tbody>
-    ${recent.map(b=>`<tr><td>${b.date_in}</td><td>${b.bike_type}</td><td class="mn">${b.chassis_no}</td>
-    <td class="mn">${b.number_plate||'—'}</td><td>${bdg(b.status)}</td></tr>`).join('')}</tbody></table></div>`;
+  // // ─── RECENT ACTIVITY ───
+  // const recent=[...bikes].sort((a,b)=>(b.date_in||'').localeCompare(a.date_in||'')).slice(0,10);
+  // const act=document.getElementById('d-act');
+  // act.innerHTML=!recent.length?es('📭','No activity yet. Add stock to get started!'):
+  //   `<div class="tw"><table><thead><tr><th>Date In</th><th>Type</th><th>Chassis No.</th><th>Plate</th><th>Status</th></tr></thead><tbody>
+  //   ${recent.map(b=>`<tr><td>${b.date_in}</td><td>${b.bike_type}</td><td class="mn">${b.chassis_no}</td>
+  //   <td class="mn">${b.number_plate||'—'}</td><td>${bdg(b.status)}</td></tr>`).join('')}</tbody></table></div>`;
 
   // ─── BIKES BY MODEL ───
   const types=[...new Set(bikes.map(b=>b.bike_type))];
@@ -1654,9 +2082,119 @@ function renDash(){
       <td><strong>${chgs.length}</strong></td>
     </tr></tfoot>
   </table></div>`;
+  // In-Office Summary
+  function renInOfficeSummary(){
+    const data=gd();
+    const offices=['Kileleshwa','Kisumu','Mombasa'];
+    const allOffices=[...new Set([
+     ...data.bikes.filter(b=>b.dispatch_status==='In-Office').map(b=>b.office_location||b.client),
+     ...data.batteries.filter(b=>b.dispatch_status==='In-Office').map(b=>b.client),
+     ...data.chargers.filter(c=>c.dispatch_status==='In-Office').map(c=>c.client)
+   ].filter(Boolean))];
+   const w=document.getElementById('d-inoffice');
+   if(!w) return;
+   if(!allOffices.length){ w.innerHTML=es('🏢','No in-office dispatches recorded yet.'); return; }
+   const rows=allOffices.map(o=>{
+    const bk=data.bikes.filter(b=>b.dispatch_status==='In-Office'&&(b.office_location===o||b.client===o)).length;
+    const ba=data.batteries.filter(b=>b.dispatch_status==='In-Office'&&b.client===o).length;
+    const ch=data.chargers.filter(c=>c.dispatch_status==='In-Office'&&c.client===o).length;
+    return `<tr><td><strong>${o}</strong></td><td>${bk}</td><td>${ba}</td><td>${ch}</td><td>${bk+ba+ch}</td></tr>`;
+   });
+   const totBk=data.bikes.filter(b=>b.dispatch_status==='In-Office').length;
+   const totBa=data.batteries.filter(b=>b.dispatch_status==='In-Office').length;
+   const totCh=data.chargers.filter(c=>c.dispatch_status==='In-Office').length;
+   w.innerHTML=`<div class="tw"><table class="office-sum">
+     <thead><tr><th>Office</th><th>🏍️ Bikes</th><th>🔋 Batteries</th><th>⚡ Chargers</th><th>Total</th></tr></thead>
+     <tbody>${rows.join('')}</tbody>
+     <tfoot><tr><td>Total</td><td>${totBk}</td><td>${totBa}</td><td>${totCh}</td><td>${totBk+totBa+totCh}</td></tr></tfoot>
+   </table></div>`;
+ }
+  renInOfficeSummary();
 }
 
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  DASHBOARD — recent dispatches filter
+// ══════════════════════════════════════════════════════════
+let _dispDays = 7;
+function setDispFilter(days, btn){
+  _dispDays = days;
+  document.querySelectorAll('#disp-date-filters .dft').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renDashDispatches();
+}
+function _sinceDate(days){
+  if(!days) return null;
+  const d=new Date(); d.setDate(d.getDate()-days);
+  return d.toISOString().split('T')[0];
+}
+function renDashDispatches(){
+  const data=gd(), since=_sinceDate(_dispDays);
+  const filt=(arr,dateField)=>arr.filter(r=>r.status==='Dispatched'&&(!since||((r[dateField]||'')>=since)));
+  const bk=filt(data.bikes,'date_dispatched');
+  const ba=filt(data.batteries,'date_dispatched');
+  const ch=filt(data.chargers,'date_dispatched');
+  const bkW=document.getElementById('d-disp-bk');
+  const baW=document.getElementById('d-disp-ba');
+  const chW=document.getElementById('d-disp-ch');
+  if(bkW) bkW.innerHTML = !bk.length ? es('🚚','No dispatched bikes in period.') :
+    `<table><thead><tr><th>Date</th><th>Chassis</th><th>Type</th><th>Country</th><th>Town</th><th>Status</th><th>Client</th><th>Req. By</th></tr></thead><tbody>
+    ${bk.map(b=>`<tr><td>${b.date_dispatched||'—'}</td><td class="mn">${b.chassis_no}</td><td>${b.bike_type}</td>
+    <td>${b.country||'—'}</td><td>${b.town||'—'}</td><td>${dispStatBdg(b.dispatch_status)}</td>
+    <td>${b.client||'—'}</td><td>${b.requested_by_person||b.requested_by_team||'—'}</td></tr>`).join('')}</tbody></table>`;
+  if(baW) baW.innerHTML = !ba.length ? es('🔋','No dispatched batteries in period.') :
+    `<table><thead><tr><th>Date</th><th>Battery No.</th><th>Type</th><th>Country</th><th>Town</th><th>Status</th><th>Client</th><th>Req. By</th></tr></thead><tbody>
+    ${ba.map(b=>`<tr><td>${b.date_dispatched||'—'}</td><td class="mn">${b.battery_number}</td><td>${b.battery_type}</td>
+    <td>${b.country||'—'}</td><td>${b.town||'—'}</td><td>${dispStatBdg(b.dispatch_status)}</td>
+    <td>${b.client||'—'}</td><td>${b.requested_by_person||b.requested_by_team||'—'}</td></tr>`).join('')}</tbody></table>`;
+  if(chW) chW.innerHTML = !ch.length ? es('⚡','No dispatched chargers in period.') :
+    `<table><thead><tr><th>Date</th><th>Charger No.</th><th>Type</th><th>Country</th><th>Town</th><th>Status</th><th>Client</th><th>Req. By</th></tr></thead><tbody>
+    ${ch.map(c=>`<tr><td>${c.date_dispatched||'—'}</td><td class="mn">${c.charger_number}</td><td>${c.charger_type}</td>
+    <td>${c.country||'—'}</td><td>${c.town||'—'}</td><td>${dispStatBdg(c.dispatch_status)}</td>
+    <td>${c.client||'—'}</td><td>${c.requested_by_person||c.requested_by_team||'—'}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// // In-Office Summary
+// function renInOfficeSummary(){
+//   const data=gd();
+//   const offices=['Kileleshwa','Kisumu','Mombasa'];
+//   const allOffices=[...new Set([
+//     ...data.bikes.filter(b=>b.dispatch_status==='In-Office').map(b=>b.office_location||b.client),
+//     ...data.batteries.filter(b=>b.dispatch_status==='In-Office').map(b=>b.client),
+//     ...data.chargers.filter(c=>c.dispatch_status==='In-Office').map(c=>c.client)
+//   ].filter(Boolean))];
+//   const w=document.getElementById('d-inoffice');
+//   if(!w) return;
+//   if(!allOffices.length){ w.innerHTML=es('🏢','No in-office dispatches recorded yet.'); return; }
+//   const rows=allOffices.map(o=>{
+//     const bk=data.bikes.filter(b=>b.dispatch_status==='In-Office'&&(b.office_location===o||b.client===o)).length;
+//     const ba=data.batteries.filter(b=>b.dispatch_status==='In-Office'&&b.client===o).length;
+//     const ch=data.chargers.filter(c=>c.dispatch_status==='In-Office'&&c.client===o).length;
+//     return `<tr><td><strong>${o}</strong></td><td>${bk}</td><td>${ba}</td><td>${ch}</td><td>${bk+ba+ch}</td></tr>`;
+//   });
+//   const totBk=data.bikes.filter(b=>b.dispatch_status==='In-Office').length;
+//   const totBa=data.batteries.filter(b=>b.dispatch_status==='In-Office').length;
+//   const totCh=data.chargers.filter(c=>c.dispatch_status==='In-Office').length;
+//   w.innerHTML=`<div class="tw"><table class="office-sum">
+//     <thead><tr><th>Office</th><th>🏍️ Bikes</th><th>🔋 Batteries</th><th>⚡ Chargers</th><th>Total</th></tr></thead>
+//     <tbody>${rows.join('')}</tbody>
+//     <tfoot><tr><td>Total</td><td>${totBk}</td><td>${totBa}</td><td>${totCh}</td><td>${totBk+totBa+totCh}</td></tr></tfoot>
+//   </table></div>`;
+// }
+
+// Records filter clear
+function clrRecFilter(){
+  ['r-fstat','r-ftype','r-fdfrom','r-fdto'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renBkTbl();
+  ['r-ftype-b','r-fdfrom-b','r-fdto-b'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renBtTbl();
+  ['r-ftype-c','r-fdfrom-c','r-fdto-c'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renChTbl();
+  
+}
+// ══════════════════════════════════════════════════\n//  DISPATCH — SHARED HELPERS", new_js + "// ══════════════════════════════════════════════════\n//  DISPATCH — SHARED HELPERS")
+
+// ═╗
+
 //  BADGE + EMPTY STATE
 // ══════════════════════════════════════════════════════════════
 function bdg(s){
