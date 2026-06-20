@@ -159,7 +159,7 @@ input.mn,td.mn{font-family:var(--fM);font-size:12px;letter-spacing:.3px}
 .dft:hover{border-color:var(--acc);color:var(--acc)}
 .dft.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 
-/* ════════════════════ IN-OFFICE TABLE ════════════════════ */
+/* ════════════════════ At-At-DealershiphipTABLE ════════════════════ */
 .office-sum td,.office-sum th{padding:8px 13px}
 tfoot td{font-weight:700;background:#f9fafb;border-top:2px solid var(--bdr)}
 
@@ -295,7 +295,20 @@ tr:hover td{background:#fafbfc}
   <div class="card"><div class="ct">🏍️ Bikes — Stock In / Out by Model</div><div id="d-fleet"></div></div>
   <!-- ACCESSORIES BY MODEL -->
   <div class="card"><div class="ct">🔋⚡ Accessories — In / Out by Model</div><div id="d-acc"></div></div>
-  <div class="card"><div class="ct">🏢 In-Office Inventory Summary</div><div id="d-inoffice"></div></div>
+<div class="card">
+  <div class="ct">🏢 At-Dealership Inventory Summary</div>
+
+  <div class="tb" id="office-tabs">
+    <button class="tbb on" onclick="switchOfficeTab('summary',this)">Summary</button>
+    <button class="tbb" onclick="switchOfficeTab('bikes',this)">🏍️ Bikes</button>
+    <button class="tbb" onclick="switchOfficeTab('bats',this)">🔋 Batteries</button>
+    <button class="tbb" onclick="switchOfficeTab('chgs',this)">⚡ Chargers</button>
+  </div>
+
+  <!-- render output here -->
+  <div id="d-inoffice"></div>
+</div>
+  
   <!-- RECENT DISPATCHES -->
   <div class="card"><div class="ct">🚚 Recent Dispatches</div>
   <div class="date-filters" id="disp-date-filters">
@@ -312,8 +325,8 @@ tr:hover td{background:#fafbfc}
   <div class="tp" id="dash-dr-bats"><div class="tw" id="d-disp-ba"></div></div>
   <div class="tp" id="dash-dr-chgs"><div class="tw" id="d-disp-ch"></div></div>
   </div>
-  <!-- IN-OFFICE SUMMARY -->
-  <!-- <div class="card"><div class="ct">🏢 In-Office Inventory Summary</div><div id="d-inoffice"></div></div> -->
+  <!-- At-Dealership Summary -->
+  <!-- <div class="card"><div class="ct">🏢 At-Dealership Inventory Summary</div><div id="d-inoffice"></div></div> -->
   <!-- <div class="card"><div class="ct">🕐 Recent Stock-In Activity</div><div id="d-act"></div></div>
   <div class="card"><div class="ct">🏍️ Bikes — Stock In / Out by Model</div><div id="d-fleet"></div></div>
   <div class="card"><div class="ct">🔋⚡ Accessories — In / Out by Model</div><div id="d-acc"></div></div> -->
@@ -429,7 +442,7 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select status —</option>
             <option value="New">New</option>
             <option value="Returned">Returned</option>
-            <option value="Redispatch">Redispatch(dealer/office)</option>
+            <option value="Redispatch">Redispatch(dealer)</option>
           </select>
         </div>
         <div class="fi" id="bat-assess-wrap" style="display:none">
@@ -479,7 +492,7 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select status —</option>
             <option value="New">New</option>
             <option value="Returned">Returned</option>
-            <option value="Redispatch">Redispatch(dealer/office)</option>
+            <option value="Redispatch">Redispatch(dealer)</option>
           </select>
         </div>
         <div class="fi" id="chg-inspect-wrap" style="display:none">
@@ -541,39 +554,39 @@ tr:hover td{background:#fafbfc}
         </div>
         <div class="fi">
           <label>Country Dispatched To <span class="req">*</span></label>
-          <select id="{p}country" onchange="toggleCountry('{p}')">
+          <select id="db-country" onchange="toggleCountry('db-')">
             <option value="">— Select country —</option>
             <option>Kenya</option><option>Rwanda</option>
             <option>Burundi</option><option>DRC</option><option>Others</option>
           </select>
         </div>
-        <div class="fi" id="{p}kenya-town-wrap" style="display:none">
+        <div class="fi" id="db-kenya-town-wrap" style="display:none">
           <label>Town <span class="req">*</span></label>
-          <select id="{p}kenya-town">
+          <select id="db-kenya-town">
             <option value="">— Select town —</option>
             <option>Nairobi</option><option>Mombasa</option>
             <option>Kisumu</option><option>Kakamega</option>
           </select>
         </div>
-        <div class="fi" id="{p}other-town-wrap" style="display:none">
+        <div class="fi" id="db-other-town-wrap" style="display:none">
           <label>Town / Location <span class="req">*</span></label>
-          <input type="text" id="{p}other-town" placeholder="Enter town or city">
+          <input type="text" id="db-other-town" placeholder="Enter town or city">
         </div>
         <div class="fi">
           <label>Requested By (Team) <span class="req">*</span></label>
-          <select id="{p}req-team" onchange="toggleReqTeam('{p}')">
+          <select id="db-req-team" onchange="toggleReqTeam('db-')">
             <option value="">— Select team —</option>
             <option>Sales Team</option><option>Fleet Team</option>
             <option>Technical Team</option><option>Management</option>
           </select>
         </div>
-        <div class="fi fw" id="{p}req-person-wrap" style="display:none">
+        <div class="fi fw" id="db-req-person-wrap" style="display:none">
           <label>Person's Name <span class="req">*</span></label>
-          <input type="text" id="{p}req-person" placeholder="Enter person's name">
+          <input type="text" id="db-req-person" placeholder="Enter person's name">
         </div>
-        <div class="fi" id="{p}req-mgmt-wrap" style="display:none">
+        <div class="fi" id="db-req-mgmt-wrap" style="display:none">
           <label>Requested By (Management) <span class="req">*</span></label>
-          <select id="{p}req-mgmt">
+          <select id="db-req-mgmt">
             <option value="">— Select —</option>
             <option>Kwamboka</option><option>Jimmy</option><option>Celeste</option>
           </select>
@@ -583,7 +596,7 @@ tr:hover td{background:#fafbfc}
           <select id="db-stat" onchange="toggleBikeDisp()">
             <option value="">— Select status —</option>
             <option>Sold</option><option>Fleet</option><option>Leased</option>
-            <option>Repaired</option><option>In-Office</option>
+            <option>Repaired</option><option>At-Dealership</option>
           </select>
         </div>
         <div class="fi fw">
@@ -628,14 +641,14 @@ tr:hover td{background:#fafbfc}
           <input type="text" id="db-client" placeholder="Enter client or vendor name">
         </div>
         <div class="fi" id="db-office-wrap" style="display:none">
-          <label>Office Location <span class="req">*</span></label>
+          <label>At-Dealership Location <span class="req">*</span></label>
           <select id="db-office-loc">
-            <option value="">— Select office —</option>
+            <option value="">— Select At-Dealership Location —</option>
             <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option>
           </select>
         </div>
         <div class="fi" id="db-office-pur-wrap" style="display:none">
-          <label>Office Purpose <span class="req">*</span></label>
+          <label>At-Dealership Purpose <span class="req">*</span></label>
           <select id="db-office-pur">
             <option value="">— Select purpose —</option>
             <option>Awaiting Sale</option><option>Test Bike</option>
@@ -666,39 +679,39 @@ tr:hover td{background:#fafbfc}
         </div>
         <div class="fi">
           <label>Country Dispatched To <span class="req">*</span></label>
-          <select id="{p}country-ba" onchange="batoggleCountry('{p}')">
+          <select id="dba-country-ba" onchange="toggleCountry('dba-')">
             <option value="">— Select country —</option>
             <option>Kenya</option><option>Rwanda</option>
             <option>Burundi</option><option>DRC</option><option>Others</option>
           </select>
         </div>
-        <div class="fi" id="{p}kenya-town-wrap-ba" style="display:none">
+        <div class="fi" id="dba-kenya-town-wrap-ba" style="display:none">
           <label>Town <span class="req">*</span></label>
-          <select id="{p}kenya-town-ba">
+          <select id="dba-kenya-town-ba">
             <option value="">— Select town —</option>
             <option>Nairobi</option><option>Mombasa</option>
             <option>Kisumu</option><option>Kakamega</option>
           </select>
         </div>
-        <div class="fi" id="{p}other-town-wrap-ba" style="display:none">
+        <div class="fi" id="dba-other-town-wrap-ba" style="display:none">
           <label>Town / Location <span class="req">*</span></label>
-          <input type="text" id="{p}other-town-ba" placeholder="Enter town or city">
+          <input type="text" id="dba-other-town-ba" placeholder="Enter town or city">
         </div>
         <div class="fi">
           <label>Requested By (Team) <span class="req">*</span></label>
-          <select id="{p}req-team-ba" onchange="batoggleReqTeam('{p}')">
+          <select id="dba-req-team-ba" onchange="toggleReqTeam('dba-')">
             <option value="">— Select team —</option>
             <option>Sales Team</option><option>Fleet Team</option>
             <option>Technical Team</option><option>Management</option>
           </select>
         </div>
-        <div class="fi fw" id="{p}req-person-wrap-ba" style="display:none">
+        <div class="fi fw" id="dba-req-person-wrap-ba" style="display:none">
           <label>Person's Name <span class="req">*</span></label>
-          <input type="text" id="{p}req-person-ba" placeholder="Enter person's name">
+          <input type="text" id="dba-req-person-ba" placeholder="Enter person's name">
         </div>
-        <div class="fi" id="{p}req-mgmt-wrap-ba" style="display:none">
+        <div class="fi" id="dba-req-mgmt-wrap-ba" style="display:none">
           <label>Requested By (Management) <span class="req">*</span></label>
-          <select id="{p}req-mgmt-ba">
+          <select id="dba-req-mgmt-ba">
             <option value="">— Select —</option>
             <option>Kwamboka</option><option>Jimmy</option><option>Celeste</option>
           </select>
@@ -708,7 +721,7 @@ tr:hover td{background:#fafbfc}
           <select id="dba-stat" onchange="toggleBatDisp()">
             <option value="">— Select status —</option>
             <option>Sold</option><option>Fleet</option><option>Leased</option>
-            <option>Repaired</option><option>In-Office</option>
+            <option>Repaired</option><option>At-Dealership</option>
           </select>
         </div>
         <div class="fi fw">
@@ -744,14 +757,14 @@ tr:hover td{background:#fafbfc}
           <input type="text" id="dba-client" placeholder="Client or vendor name">
         </div>
         <div class="fi" id="dba-office-wrap" style="display:none">
-          <label>Office Location <span class="req">*</span></label>
+          <label>At-Dealership Location <span class="req">*</span></label>
           <select id="dba-office-loc">
             <option value="">— Select —</option>
             <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option>
           </select>
         </div>
         <div class="fi" id="dba-office-pur-wrap" style="display:none">
-          <label>Office Purpose</label>
+          <label>At-Dealership Purpose</label>
           <select id="dba-office-pur">
             <option value="">— Select —</option>
             <option>Awaiting Sale</option><option>Test Battery</option>
@@ -782,39 +795,39 @@ tr:hover td{background:#fafbfc}
         </div>
         <div class="fi">
           <label>Country Dispatched To <span class="req">*</span></label>
-          <select id="{p}country-ch" onchange="chtoggleCountry('{p}')">
+          <select id="dch-country-ch" onchange="toggleCountry('dch-')">
             <option value="">— Select country —</option>
             <option>Kenya</option><option>Rwanda</option>
             <option>Burundi</option><option>DRC</option><option>Others</option>
           </select>
         </div>
-        <div class="fi" id="{p}kenya-town-wrap-ch" style="display:none">
+        <div class="fi" id="dch-kenya-town-wrap-ch" style="display:none">
           <label>Town <span class="req">*</span></label>
-          <select id="{p}kenya-town-ch">
+          <select id="dch-kenya-town-ch">
             <option value="">— Select town —</option>
             <option>Nairobi</option><option>Mombasa</option>
             <option>Kisumu</option><option>Kakamega</option>
           </select>
         </div>
-        <div class="fi" id="{p}other-town-wrap-ch" style="display:none">
+        <div class="fi" id="dch-other-town-wrap-ch" style="display:none">
           <label>Town / Location <span class="req">*</span></label>
-          <input type="text" id="{p}other-town-ch" placeholder="Enter town or city">
+          <input type="text" id="dch-other-town-ch" placeholder="Enter town or city">
         </div>
         <div class="fi">
           <label>Requested By (Team) <span class="req">*</span></label>
-          <select id="{p}req-team-ch" onchange="chtoggleReqTeam('{p}')">
+          <select id="dch-req-team-ch" onchange="toggleReqTeam('dch-')">
             <option value="">— Select team —</option>
             <option>Sales Team</option><option>Fleet Team</option>
             <option>Technical Team</option><option>Management</option>
           </select>
         </div>
-        <div class="fi fw" id="{p}req-person-wrap-ch" style="display:none">
+        <div class="fi fw" id="dch-req-person-wrap-ch" style="display:none">
           <label>Person's Name <span class="req">*</span></label>
-          <input type="text" id="{p}req-person-ch" placeholder="Enter person's name">
+          <input type="text" id="dch-req-person-ch" placeholder="Enter person's name">
         </div>
-        <div class="fi" id="{p}req-mgmt-wrap-ch" style="display:none">
+        <div class="fi" id="dch-req-mgmt-wrap-ch" style="display:none">
           <label>Requested By (Management) <span class="req">*</span></label>
-          <select id="{p}req-mgmt-ch">
+          <select id="dch-req-mgmt-ch">
             <option value="">— Select —</option>
             <option>Kwamboka</option><option>Jimmy</option><option>Celeste</option>
           </select>
@@ -824,7 +837,7 @@ tr:hover td{background:#fafbfc}
           <select id="dch-stat" onchange="toggleChgDisp()">
             <option value="">— Select status —</option>
             <option>Sold</option><option>Fleet</option><option>Leased</option>
-            <option>Repaired</option><option>In-Office</option>
+            <option>Repaired</option><option>At-Dealership</option>
           </select>
         </div>
         <div class="fi fw">
@@ -860,14 +873,14 @@ tr:hover td{background:#fafbfc}
           <input type="text" id="dch-client" placeholder="Client or vendor name">
         </div>
         <div class="fi" id="dch-office-wrap" style="display:none">
-          <label>Office Location <span class="req">*</span></label>
+          <label>At-At-DealershiphipLocation <span class="req">*</span></label>
           <select id="dch-office-loc">
             <option value="">— Select —</option>
             <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option><option></option>
           </select>
         </div>
         <div class="fi" id="dch-office-pur-wrap" style="display:none">
-          <label>Office Purpose</label>
+          <label>At-At-DealershiphipPurpose</label>
           <select id="dch-office-pur">
             <option value="">— Select —</option>
             <option>Awaiting Sale</option><option>Test Charger</option>
@@ -1480,141 +1493,91 @@ function addChg(){
 // ══════════════════════════════════════════════════════════════
 //  DISPATCH — SHARED HELPERS
 // ══════════════════════════════════════════════════════════════
+// mapping syffix
+const _SFX = { 'db-':'', 'dba-':'-ba', 'dch-':'-ch' };
 function _hideConditionals(prefix){
-  ['sold-wrap','fin-wrap','{p}kenya-town-wrap','{p}other-town-wrap','{p}req-person-wrap','{p}req-mgmt-wrap','{p}lease-wrap','client-wrap','office-wrap','office-pur-wrap']
-    .forEach(s=>{ const el=document.getElementById(prefix+s); if(el) el.style.display='none'; });
+  const s = _SFX[prefix] || '';
+  // Note: no {p} — just the suffix, prefix is prepended automatically
+  ['sold-wrap','fin-wrap','lease-wrap','client-wrap','office-wrap','office-pur-wrap',
+   'kenya-town-wrap'+s,'other-town-wrap'+s,'req-person-wrap'+s,'req-mgmt-wrap'+s]
+    .forEach(id=>{const el=document.getElementById(prefix+id);if(el) el.style.display='none';
+    });
 }
 function _showByStatus(prefix, stat){
   _hideConditionals(prefix);
   const show=(...ids)=>ids.forEach(id=>{ const el=document.getElementById(prefix+id); if(el) el.style.display=''; });
   if(stat==='Sold')     { show('sold-wrap','client-wrap'); }
-  if(stat==='Kenya')   { show('{p}kenya-town-wrap','{p}req-person-wrap'); }
   else if(stat==='Leased')   { show('lease-wrap','client-wrap'); }
   else if(stat==='Repaired') { show('client-wrap'); }
-  else if(stat==='In-Office'){ show('office-wrap','office-pur-wrap'); }
-  // Fleet: no extras
+  else if(stat==='At-Dealership'){ show('office-wrap','office-pur-wrap'); }
+}
+function _getLocation(prefix){
+  const s = _SFX[prefix] || '';
+  const c  = (document.getElementById(prefix+'country'+s)    ||{}).value || '';
+  const kt = (document.getElementById(prefix+'kenya-town'+s) ||{}).value || '';
+  const ot =((document.getElementById(prefix+'other-town'+s) ||{}).value || '').trim();
+  return { country: c, town: c==='Kenya' ? kt : ot };
+}
+function _getReqBy(prefix){
+  const s = _SFX[prefix] || '';
+  const team   = (document.getElementById(prefix+'req-team'+s)  ||{}).value || '';
+  const person =((document.getElementById(prefix+'req-person'+s)||{}).value || '').trim();
+  const mgmt   = (document.getElementById(prefix+'req-mgmt'+s)  ||{}).value || '';
+  return {
+    requested_by_team:   team,
+    requested_by_person: team==='Management' ? mgmt : person
+  };
+}
+function _hideExtraDisp(prefix){
+  const s = _SFX[prefix] || '';
+  ['country'+s,'kenya-town'+s,'other-town'+s,'req-team'+s,'req-person'+s,'req-mgmt'+s].forEach(id=>{
+    const el=document.getElementById(prefix+id); if(el) el.value='';
+  });
+  ['kenya-town-wrap'+s,'other-town-wrap'+s,'req-person-wrap'+s,'req-mgmt-wrap'+s].forEach(id=>{
+    const el=document.getElementById(prefix+id); if(el) el.style.display='none';
+  });
+}
+function toggleCountry(prefix){
+  const s = _SFX[prefix] || '';
+  const c=document.getElementById(prefix+'country'+s).value;
+  document.getElementById(prefix+'kenya-town-wrap'+s).style.display  = c==='Kenya'?'':'none';
+  document.getElementById(prefix+'other-town-wrap'+s).style.display  = (c&&c!=='Kenya')?'':'none';
+  if(c!=='Kenya') { const el=document.getElementById(prefix+'kenya-town'+s); if(el) el.value=''; }
+  if(c==='Kenya') { const el=document.getElementById(prefix+'other-town'+s); if(el) el.value=''; }
+}
+function toggleReqTeam(prefix){
+  const s = _SFX[prefix] || '';
+  const t=document.getElementById(prefix+'req-team'+s).value;
+  document.getElementById(prefix+'req-person-wrap'+s).style.display = ['Sales Team','Fleet Team','Technical Team'].includes(t)?'':'none';
+  document.getElementById(prefix+'req-mgmt-wrap'+s).style.display   = t==='Management'?'':'none';
 }
 
-// ══════════════════════════════════════════════════════════════
-//  DISPATCH — BIKE (prefix: db-)
-// ══════════════════════════════════════════════════════════════
-function refreshDispBikeSel(){
-  const type=document.getElementById('db-type').value;
-  const sel=document.getElementById('db-sel');
-  const bikes=gd().bikes.filter(b=>b.status==='Assembled'&&(!type||b.bike_type===type));
-  sel.innerHTML='<option value="">— Choose chassis number —</option>';
-  bikes.forEach(b=>sel.innerHTML+=`<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}${b.number_plate?' · '+b.number_plate:''}</option>`);
-  document.getElementById('db-atype').value='';
-  document.getElementById('db-plate').value='';
+function toggleBikeDisp(){ _showByStatus('db-',document.getElementById('db-stat').value); }
+
+function toggleBikeFinance(){
+  const st=document.getElementById('db-sold-type').value;
+  document.getElementById('db-fin-wrap').style.display=st==='Financing'?'':'none';
 }
 
-//  DISPATCH EXTRA — country / town / requested-by toggles
-// ══════════════════════════════════════════════════════════════
-function toggleCountry(pfx){
-  const c=document.getElementById(pfx+'country').value;
-  document.getElementById(pfx+'kenya-town-wrap').style.display  = c==='Kenya'?'':'none';
-  document.getElementById(pfx+'other-town-wrap').style.display  = (c&&c!=='Kenya')?'':'none';
-  if(c!=='Kenya') { const el=document.getElementById(pfx+'kenya-town'); if(el) el.value=''; }
-  if(c==='Kenya') { const el=document.getElementById(pfx+'other-town'); if(el) el.value=''; }
-}
-function toggleReqTeam(pfx){
-  const t=document.getElementById(pfx+'req-team').value;
-  document.getElementById(pfx+'req-person-wrap').style.display = ['Sales Team','Fleet Team','Technical Team'].includes(t)?'':'none';
-  document.getElementById(pfx+'req-mgmt-wrap').style.display   = t==='Management'?'':'none';
-}
-function _getLocation(pfx){
-  const c=document.getElementById(pfx+'country').value;
-  const kt=document.getElementById(pfx+'kenya-town').value;
-  const ot=(document.getElementById(pfx+'other-town').value||'').trim();
-  return { country:c, town: c==='Kenya'?kt:ot };
-}
-function _getReqBy(pfx){
-  const team=document.getElementById(pfx+'req-team').value;
-  const person=(document.getElementById(pfx+'req-person').value||'').trim();
-  const mgmt=document.getElementById(pfx+'req-mgmt').value;
-  return { requested_by_team:team, requested_by_person: team==='Management'?mgmt:person };
-}
-function _hideExtraDisp(pfx){
-  ['country','kenya-town','other-town','req-team','req-person','req-mgmt'].forEach(id=>{
-    const el=document.getElementById(pfx+id); if(el) el.value='';
-  });
-  ['kenya-town-wrap','other-town-wrap','req-person-wrap','req-mgmt-wrap'].forEach(id=>{
-    const el=document.getElementById(pfx+id); if(el) el.style.display='none';
-  });
-}
-// dispatch country battery
-function batoggleCountry(pfx){
-  const c=document.getElementById(pfx+'country-ba').value;
-  document.getElementById(pfx+'kenya-town-wrap-ba').style.display  = c==='Kenya'?'':'none';
-  document.getElementById(pfx+'other-town-wrap-ba').style.display  = (c&&c!=='Kenya')?'':'none';
-  if(c!=='Kenya') { const el=document.getElementById(pfx+'kenya-town-ba'); if(el) el.value=''; }
-  if(c==='Kenya') { const el=document.getElementById(pfx+'other-town-ba'); if(el) el.value=''; }
-}
-function batoggleReqTeam(pfx){
-  const t=document.getElementById(pfx+'req-team-ba').value;
-  document.getElementById(pfx+'req-person-wrap-ba').style.display = ['Sales Team','Fleet Team','Technical Team'].includes(t)?'':'none';
-  document.getElementById(pfx+'req-mgmt-wrap-ba').style.display   = t==='Management'?'':'none';
-}
-function _getLocation(pfx){
-  const c=document.getElementById(pfx+'country-ba').value;
-  const kt=document.getElementById(pfx+'kenya-town-ba').value;
-  const ot=(document.getElementById(pfx+'other-town-ba').value||'').trim();
-  return { country:c, town: c==='Kenya'?kt:ot };
-}
-function _getReqBy(pfx){
-  const team=document.getElementById(pfx+'req-team-ba').value;
-  const person=(document.getElementById(pfx+'req-person-ba').value||'').trim();
-  const mgmt=document.getElementById(pfx+'req-mgmt-ba').value;
-  return { requested_by_team:team, requested_by_person: team==='Management'?mgmt:person };
-}
-// chargers by location and req-by
-function chtoggleCountry(pfx){
-  const c=document.getElementById(pfx+'country-ch').value;
-  document.getElementById(pfx+'kenya-town-wrap-ch').style.display  = c==='Kenya'?'':'none';
-  document.getElementById(pfx+'other-town-wrap-ch').style.display  = (c&&c!=='Kenya')?'':'none';
-  if(c!=='Kenya') { const el=document.getElementById(pfx+'kenya-town-ch'); if(el) el.value=''; }
-  if(c==='Kenya') { const el=document.getElementById(pfx+'other-town-ch'); if(el) el.value=''; }
-}
-function chtoggleReqTeam(pfx){
-  const t=document.getElementById(pfx+'req-team-ch').value;
-  document.getElementById(pfx+'req-person-wrap-ch').style.display = ['Sales Team','Fleet Team','Technical Team'].includes(t)?'':'none';
-  document.getElementById(pfx+'req-mgmt-wrap-ch').style.display   = t==='Management'?'':'none';
-}
-function _getLocation(pfx){
-  const c=document.getElementById(pfx+'country-ch').value;
-  const kt=document.getElementById(pfx+'kenya-town-ch').value;
-  const ot=(document.getElementById(pfx+'other-town-ch').value||'').trim();
-  return { country:c, town: c==='Kenya'?kt:ot };
-}
-function _getReqBy(pfx){
-  const team=document.getElementById(pfx+'req-team-ch').value;
-  const person=(document.getElementById(pfx+'req-person-ch').value||'').trim();
-  const mgmt=document.getElementById(pfx+'req-mgmt-ch').value;
-  return { requested_by_team:team, requested_by_person: team==='Management'?mgmt:person };
-}
-function _hideExtraDisp(pfx){
-  ['country-ch','kenya-town-ch','other-town-ch','req-team-ch','req-person-ch','req-mgmt-ch'].forEach(id=>{
-    const el=document.getElementById(pfx+id); if(el) el.value='';
-  });
-  ['kenya-town-wrap-ch','other-town-wrap-ch','req-person-wrap-ch','req-mgmt-wrap-ch'].forEach(id=>{
-    const el=document.getElementById(pfx+id); if(el) el.style.display='none';
-  });
-}
 function fillBikeDisp(){
   const cn=document.getElementById('db-sel').value;
   const b=gd().bikes.find(b=>b.chassis_no===cn);
   document.getElementById('db-atype').value=b?b.bike_type:'';
   document.getElementById('db-plate').value=b?b.number_plate||'':'';
 }
-function toggleBikeDisp(){ _showByStatus('db-',document.getElementById('db-stat').value); }
-function toggleBikeFinance(){
-  const st=document.getElementById('db-sold-type').value;
-  document.getElementById('db-fin-wrap').style.display=st==='Financing'?'':'none';
+
+
+function refreshDispBikeSel(){
+  const type=document.getElementById('db-type').value;
+  const sel=document.getElementById('db-sel');
+  const bikes=gd().bikes.filter(b=>b.status !=='Unassembled'&&(!type||b.bike_type===type));
+  sel.innerHTML='<option value="">— Choose chassis number —</option>';
+  bikes.forEach(b=>sel.innerHTML+=`<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}${b.number_plate?' · '+b.number_plate:''}</option>`);
+  document.getElementById('db-atype').value='';
+  document.getElementById('db-plate').value='';
 }
-// function togglejembeBatFields(){
-//   const btype=document.getElementById('a-batype').value;
-//   document.getElementById('a-battery-fin-wrap').style.display=btype==='Jembe'?'':'none';
-// }
+
+
 function doDispBike(){
   const cn=document.getElementById('db-sel').value;
   const dd=document.getElementById('db-date').value;
@@ -1632,19 +1595,7 @@ function doDispBike(){
   if(stat==='Sold'&&soldType==='Financing'&&!finance) return toast('Please select financing company.','er');
   if(stat==='Leased'&&!leaseType) return toast('Please select leasing type.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
-  if(stat==='In-Office'&&!officeLoc) return toast('Please select office location.','er');
-  // const data=gd();
-  // const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
-  // if(idx<0) return toast('Bike not found!','er');
-  // const dispatched={status:'Dispatched',dispatch_status:stat,sold_type:soldType,
-  //   finance_company:finance,lease_type:leaseType,
-  //   client:stat==='In-Office'?officeLoc:client,
-  //   office_location:officeLoc,office_purpose:officePur,date_dispatched:dd};
-  // Object.assign(data.bikes[idx],dispatched);
-  // sd(data);
-  // DB.put('bikes',cn,data.bikes[idx]);
-  // toast(`${cn} dispatched → ${stat} ✅`,'ok');
-  // clrBikeDisp(); refreshDispBikeSel(); renDispBkTbl();
+  if(stat==='At-Dealership'&&!officeLoc) return toast('Please select At-At-DealershiphipLocation.','er');
   const loc=_getLocation('db-'), req=_getReqBy('db-');
   if(!loc.country) return toast('Please select a country.','er');
   if(loc.country==='Kenya'&&!loc.town) return toast('Please select a town.','er');
@@ -1657,7 +1608,7 @@ function doDispBike(){
   if(idx<0) return toast('Bike not found!','er');
   const dispatched={status:'Dispatched',dispatch_status:stat,sold_type:soldType,
     finance_company:finance,lease_type:leaseType,
-    client:stat==='In-Office'?officeLoc:client,
+    client:stat==='At-Dealership'?officeLoc:client,
     office_location:officeLoc,office_purpose:officePur,date_dispatched:dd,
     country:loc.country, town:loc.town,
     requested_by_team:req.requested_by_team, requested_by_person:req.requested_by_person};
@@ -1667,6 +1618,7 @@ function doDispBike(){
   toast(`${cn} dispatched → ${stat} ✅`,'ok');
   clrBikeDisp(); refreshDispBikeSel(); renDispBkTbl(); renDashDispatches();
 }
+
 function clrBikeDisp(){
   ['db-type','db-sel','db-atype','db-plate','db-stat','db-sold-type','db-finance','db-lease-type','db-client','db-office-loc','db-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   _hideConditionals('db-');
@@ -1697,12 +1649,12 @@ function doDispBat(){
   if(!stat) return toast('Please select a dispatch status.','er');
   if(!dd)   return toast('Please select a dispatch date.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
-  if(stat==='In-Office'&&!officeLoc) return toast('Please select office location.','er');
+  if(stat==='At-Dealership'&&!officeLoc) return toast('Please select At-At-DealershiphipLocation.','er');
   const data=gd();
   const idx=data.batteries.findIndex(b=>b.battery_number===num);
   if(idx<0) return toast('Battery not found!','er');
   // Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,
-  //   client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
+  //   client:stat==='At-Dealership'?officeLoc:client,date_dispatched:dd});
   // sd(data);
   // DB.put('batteries',num,data.batteries[idx]);
   // toast(`Battery ${num} dispatched → ${stat} ✅`,'ok');
@@ -1715,7 +1667,7 @@ function doDispBat(){
   if(['Sales Team','Fleet Team','Technical Team'].includes(reqBa.requested_by_team)&&!reqBa.requested_by_person) return toast('Please enter the persons name.','er');
   if(reqBa.requested_by_team==='Management'&&!reqBa.requested_by_person) return toast('Please select the manager.','er');
   Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,
-    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd,
+    client:stat==='At-Dealership'?officeLoc:client,date_dispatched:dd,
     country:locBa.country, town:locBa.town,
     requested_by_team:reqBa.requested_by_team, requested_by_person:reqBa.requested_by_person});
   sd(data);
@@ -1749,21 +1701,16 @@ function doDispChg(){
   const dd=document.getElementById('dch-date').value;
   const client=document.getElementById('dch-client').value.trim();
   const officeLoc=document.getElementById('dch-office-loc').value;
+  const locCh=_getLocation('dch-'), reqCh=_getReqBy('dch-');
   if(!num)  return toast('Please select a charger.','er');
   if(!stat) return toast('Please select a dispatch status.','er');
   if(!dd)   return toast('Please select a dispatch date.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
-  if(stat==='In-Office'&&!officeLoc) return toast('Please select office location.','er');
+  if(stat==='At-Dealership'&&!officeLoc) return toast('Please select At-At-DealershiphipLocation.','er');
   const data=gd();
   const idx=data.chargers.findIndex(c=>c.charger_number===num);
   if(idx<0) return toast('Charger not found!','er');
-  // Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,
-  //   client:stat==='In-Office'?officeLoc:client,date_dispatched:dd});
-  // sd(data);
-  // DB.put('chargers',num,data.chargers[idx]);
-  // toast(`Charger ${num} dispatched → ${stat} ✅`,'ok');
-  // clrChgDisp(); refreshDispChgSel(); renDispChTbl();
-  const locCh=_getLocation('dch-'), reqCh=_getReqBy('dch-');
+
   if(!locCh.country) return toast('Please select a country.','er');
   if(locCh.country==='Kenya'&&!locCh.town) return toast('Please select a town.','er');
   if(locCh.country!=='Kenya'&&!locCh.town) return toast('Please enter a town or location.','er');
@@ -1771,7 +1718,7 @@ function doDispChg(){
   if(['Sales Team','Fleet Team','Technical Team'].includes(reqCh.requested_by_team)&&!reqCh.requested_by_person) return toast('Please enter the person name.','er');
   if(reqCh.requested_by_team==='Management'&&!reqCh.requested_by_person) return toast('Please select the manager.','er');
   Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,
-    client:stat==='In-Office'?officeLoc:client,date_dispatched:dd,
+    client:stat==='At-Dealership'?officeLoc:client,date_dispatched:dd,
     country:locCh.country, town:locCh.town,
     requested_by_team:reqCh.requested_by_team, requested_by_person:reqCh.requested_by_person});
   sd(data);
@@ -1789,7 +1736,7 @@ function clrChgDisp(){
 //  DISPATCH TABLE RENDERERS
 // ══════════════════════════════════════════════════════════════
 function dispStatBdg(ds){
-  const m={Sold:'sold',Fleet:'fleet',Leased:'leased','In-Office':'office',Repaired:'re'};
+  const m={Sold:'sold',Fleet:'fleet',Leased:'leased','At-Dealership':'office',Repaired:'re'};
   return `<span class="bdg b-${m[ds]||'di'}">${ds||'—'}</span>`;
 }
 function renDispBkTbl(){
@@ -2003,7 +1950,7 @@ function renDash(){
     </div>`;
 
   // ─── DISPATCH BREAKDOWN PILLS ───
-  const DSTATS=['Sold','Fleet','Leased','In-Office','Repaired'];
+  const DSTATS=['Sold','Fleet','Leased','At-Dealership','Repaired'];
   const pillHtml=DSTATS.map(ds=>{
     const n=bikes.filter(b=>b.dispatch_status===ds).length;
     return n>0?`<div class="pill"><span>${n}</span>${ds}</div>`:null;
@@ -2082,35 +2029,97 @@ function renDash(){
       <td><strong>${chgs.length}</strong></td>
     </tr></tfoot>
   </table></div>`;
-  // In-Office Summary
-  function renInOfficeSummary(){
-    const data=gd();
-    const offices=['Kileleshwa','Kisumu','Mombasa'];
-    const allOffices=[...new Set([
-     ...data.bikes.filter(b=>b.dispatch_status==='In-Office').map(b=>b.office_location||b.client),
-     ...data.batteries.filter(b=>b.dispatch_status==='In-Office').map(b=>b.client),
-     ...data.chargers.filter(c=>c.dispatch_status==='In-Office').map(c=>c.client)
-   ].filter(Boolean))];
-   const w=document.getElementById('d-inoffice');
-   if(!w) return;
-   if(!allOffices.length){ w.innerHTML=es('🏢','No in-office dispatches recorded yet.'); return; }
-   const rows=allOffices.map(o=>{
-    const bk=data.bikes.filter(b=>b.dispatch_status==='In-Office'&&(b.office_location===o||b.client===o)).length;
-    const ba=data.batteries.filter(b=>b.dispatch_status==='In-Office'&&b.client===o).length;
-    const ch=data.chargers.filter(c=>c.dispatch_status==='In-Office'&&c.client===o).length;
-    return `<tr><td><strong>${o}</strong></td><td>${bk}</td><td>${ba}</td><td>${ch}</td><td>${bk+ba+ch}</td></tr>`;
-   });
-   const totBk=data.bikes.filter(b=>b.dispatch_status==='In-Office').length;
-   const totBa=data.batteries.filter(b=>b.dispatch_status==='In-Office').length;
-   const totCh=data.chargers.filter(c=>c.dispatch_status==='In-Office').length;
-   w.innerHTML=`<div class="tw"><table class="office-sum">
-     <thead><tr><th>Office</th><th>🏍️ Bikes</th><th>🔋 Batteries</th><th>⚡ Chargers</th><th>Total</th></tr></thead>
-     <tbody>${rows.join('')}</tbody>
-     <tfoot><tr><td>Total</td><td>${totBk}</td><td>${totBa}</td><td>${totCh}</td><td>${totBk+totBa+totCh}</td></tr></tfoot>
-   </table></div>`;
- }
-  renInOfficeSummary();
 }
+  // At-At-DealershiphipSummary
+// ── tab switcher for the office card ──────────────────────────
+function switchOfficeTab(type, btn){
+  document.querySelectorAll('#office-tabs .tbb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renInOfficeSummary(type);
+}
+
+function renInOfficeSummary(type='summary'){
+  const data = gd();
+  const w = document.getElementById('d-inoffice');
+  if (!w) return;
+
+  // Works for bikes (office_location) AND batteries/chargers (client = office when At-Dealership)
+  const getOffice = x => x.office_location || x.client || '';
+
+  // Map tab name → data key + model field
+  // const DATA_KEY   = { bikes:'bikes', bats:'batteries', chgs:'chargers' };
+  // const MODEL_FIELD = { bikes:'bike_type', bats:'battery_type', chgs:'charger_type' };
+
+  // ── SUMMARY tab ────────────────────────────────────────────
+  if (type === 'summary') {
+    const allOffices = [...new Set([
+      ...data.bikes.filter(b=>b.dispatch_status==='At-Dealership').map(getOffice),
+      ...data.batteries.filter(b=>b.dispatch_status==='At-Dealership').map(getOffice),
+      ...data.chargers.filter(c=>c.dispatch_status==='At-Dealership').map(getOffice)
+    ].filter(Boolean))].sort();
+
+    if (!allOffices.length) { w.innerHTML = es('🏢','No At-At-Dealershiphipdispatches recorded yet.'); return; }
+
+    const rows = allOffices.map(o => {
+      const bk = data.bikes.filter(b=>b.dispatch_status==='At-Dealership'&&getOffice(b)===o).length;
+      const ba = data.batteries.filter(b=>b.dispatch_status==='At-Dealership'&&getOffice(b)===o).length;
+      const ch = data.chargers.filter(c=>c.dispatch_status==='At-Dealership'&&getOffice(c)===o).length;
+      return `<tr><td><strong>${o}</strong></td><td>${bk}</td><td>${ba}</td><td>${ch}</td><td>${bk+ba+ch}</td></tr>`;
+    });
+
+    const tBk = data.bikes.filter(b=>b.dispatch_status==='At-Dealership').length;
+    const tBa = data.batteries.filter(b=>b.dispatch_status==='At-Dealership').length;
+    const tCh = data.chargers.filter(c=>c.dispatch_status==='At-Dealership').length;
+
+    w.innerHTML = `<div class="tw"><table class="office-sum">
+      <thead><tr><th>Dealers</th><th>🏍️ Bikes</th><th>🔋 Batteries</th><th>⚡ Chargers</th><th>Total</th></tr></thead>
+      <tbody>${rows.join('')}</tbody>
+      <tfoot><tr><td><strong>Total</strong></td><td>${tBk}</td><td>${tBa}</td><td>${tCh}</td><td>${tBk+tBa+tCh}</td></tr></tfoot>
+    </table></div>`;
+    return;
+  }
+
+  // ── INDIVIDUAL TABS (bikes / bats / chgs) ──────────────────
+  const map = {
+    bikes: 'bikes',
+    bats: 'batteries',
+    chgs: 'chargers'
+  };
+
+  const modelMap = {
+    bikes: 'bike_type',
+    bats: 'battery_type',
+    chgs: 'charger_type'
+  };
+  const key = map[type];
+  const modelField = modelMap[type];     // 'bats'  → 'battery_type'
+  const items    = (data[key]||[]).filter(x => x.dispatch_status==='At-Dealership');
+
+  if (!items.length) { w.innerHTML = es('🏢',`No At-At-Dealershiphip${key} yet.`); return; }
+
+  const offices = [...new Set(items.map(getOffice).filter(Boolean))].sort();
+  const models  = [...new Set(items.map(x=>x[modelField]).filter(Boolean))].sort();
+
+  const rows = offices.map(o => {
+    let total = 0;
+    const cols = models.map(m => {
+      const cnt = items.filter(x=>getOffice(x)===o && x[modelField]===m).length;
+      total += cnt;
+      return `<td>${cnt}</td>`;
+    }).join('');
+    return `<tr><td><strong>${o}</strong></td>${cols}<td><strong>${total}</strong></td></tr>`;
+  });
+
+  const footer = models.map(m=>`<td>${items.filter(x=>x[modelField]===m).length}</td>`).join('');
+
+  w.innerHTML = `<div class="tw"><table class="office-sum">
+    <thead><tr><th>Dealers</th>${models.map(m=>`<th>${m}</th>`).join('')}<th>Total</th></tr></thead>
+    <tbody>${rows.join('')}</tbody>
+    <tfoot><tr><td><strong>Total</strong></td>${footer}<td><strong>${items.length}</strong></td></tr></tfoot>
+  </table></div>`;
+}
+renInOfficeSummary('summary');
+
 
 // ══════════════════════════════════════════════════════════
 //  DASHBOARD — recent dispatches filter
@@ -2153,27 +2162,28 @@ function renDashDispatches(){
     <td>${c.client||'—'}</td><td>${c.requested_by_person||c.requested_by_team||'—'}</td></tr>`).join('')}</tbody></table>`;
 }
 
-// // In-Office Summary
+
+// // At-At-DealershiphipSummary
 // function renInOfficeSummary(){
 //   const data=gd();
 //   const offices=['Kileleshwa','Kisumu','Mombasa'];
 //   const allOffices=[...new Set([
-//     ...data.bikes.filter(b=>b.dispatch_status==='In-Office').map(b=>b.office_location||b.client),
-//     ...data.batteries.filter(b=>b.dispatch_status==='In-Office').map(b=>b.client),
-//     ...data.chargers.filter(c=>c.dispatch_status==='In-Office').map(c=>c.client)
+//     ...data.bikes.filter(b=>b.dispatch_status==='At-Dealership').map(b=>b.office_location||b.client),
+//     ...data.batteries.filter(b=>b.dispatch_status==='At-Dealership').map(b=>b.client),
+//     ...data.chargers.filter(c=>c.dispatch_status==='At-Dealership').map(c=>c.client)
 //   ].filter(Boolean))];
 //   const w=document.getElementById('d-inoffice');
 //   if(!w) return;
-//   if(!allOffices.length){ w.innerHTML=es('🏢','No in-office dispatches recorded yet.'); return; }
+//   if(!allOffices.length){ w.innerHTML=es('🏢','No At-At-Dealershiphipdispatches recorded yet.'); return; }
 //   const rows=allOffices.map(o=>{
-//     const bk=data.bikes.filter(b=>b.dispatch_status==='In-Office'&&(b.office_location===o||b.client===o)).length;
-//     const ba=data.batteries.filter(b=>b.dispatch_status==='In-Office'&&b.client===o).length;
-//     const ch=data.chargers.filter(c=>c.dispatch_status==='In-Office'&&c.client===o).length;
+//     const bk=data.bikes.filter(b=>b.dispatch_status==='At-Dealership'&&(b.office_location===o||b.client===o)).length;
+//     const ba=data.batteries.filter(b=>b.dispatch_status==='At-Dealership'&&b.client===o).length;
+//     const ch=data.chargers.filter(c=>c.dispatch_status==='At-Dealership'&&c.client===o).length;
 //     return `<tr><td><strong>${o}</strong></td><td>${bk}</td><td>${ba}</td><td>${ch}</td><td>${bk+ba+ch}</td></tr>`;
 //   });
-//   const totBk=data.bikes.filter(b=>b.dispatch_status==='In-Office').length;
-//   const totBa=data.batteries.filter(b=>b.dispatch_status==='In-Office').length;
-//   const totCh=data.chargers.filter(c=>c.dispatch_status==='In-Office').length;
+//   const totBk=data.bikes.filter(b=>b.dispatch_status==='At-Dealership').length;
+//   const totBa=data.batteries.filter(b=>b.dispatch_status==='At-Dealership').length;
+//   const totCh=data.chargers.filter(c=>c.dispatch_status==='At-Dealership').length;
 //   w.innerHTML=`<div class="tw"><table class="office-sum">
 //     <thead><tr><th>Office</th><th>🏍️ Bikes</th><th>🔋 Batteries</th><th>⚡ Chargers</th><th>Total</th></tr></thead>
 //     <tbody>${rows.join('')}</tbody>
