@@ -10,11 +10,11 @@ app.use(cors());
 app.use(express.json());
 
 // ── Serve the HTML frontend from  ./public/index.html ──────────────
-app.use(express.static(path.join(__dirname, "public")));
 app.use((req, res, next) => {
   console.log("➡️ REQUEST:", req.method, req.url);
   next();
 });
+app.use(express.static(path.join(__dirname, "public")));
 
 // ── Database connection ─────────────────────────────────────────────
 const pool = new Pool({
@@ -121,8 +121,8 @@ app.post("/api/bikes", async (req, res) => {
       `INSERT INTO bikes
          (date_in, bike_type, chassis_no, number_plate, status, dispatch_status,
           sold_type, finance_company, lease_type, client, office_location, office_purpose,
-          technician, date_assembled, assembly_notes, date_dispatched, return_reason)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+          technician, date_assembled, assembly_notes, date_dispatched, return_reason,country,town,requested_by_team,requested_by_person)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
        ON CONFLICT (chassis_no) DO UPDATE SET
          status        = EXCLUDED.status,
          date_in       = EXCLUDED.date_in,
@@ -147,7 +147,11 @@ app.post("/api/bikes", async (req, res) => {
         b.date_assembled || null,
         b.assembly_notes || "",
         b.date_dispatched|| null,
-        b.return_reason  || ""
+        b.return_reason  || "",
+        b.country        || "",
+        b.town           || "",
+        b.requested_by_team   || "",
+        b.requested_by_person || ""
       ]
     );
     res.json(r.rows[0]);
@@ -180,8 +184,12 @@ app.put("/api/bikes/:chassis", async (req, res) => {
          date_dispatched = $12,
          return_reason   = $13,
          number_plate    = $14,
+         country           = $15,
+         town              = $16,
+         requested_by_team   = $17,
+         requested_by_person = $18,
          updated_at      = NOW()
-       WHERE chassis_no = $15
+       WHERE chassis_no = $19
        RETURNING *`,
       [
         b.status,
@@ -198,6 +206,10 @@ app.put("/api/bikes/:chassis", async (req, res) => {
         b.date_dispatched|| null,
         b.return_reason  || "",
         b.number_plate   || "",
+        b.country        || "",
+        b.town           || "",
+        b.requested_by_team   || "",
+        b.requested_by_person || "",
         req.params.chassis
       ]
     );
@@ -228,8 +240,8 @@ app.post("/api/batteries", async (req, res) => {
   try {
     const r = await pool.query(
       `INSERT INTO batteries
-         (battery_type, battery_number, status, assessment_status, return_reason, date_in, battery_option)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
+         (battery_type, battery_number, status, assessment_status, return_reason, date_in, date_dispatched, client, dispatch_status, office_location, office_purpose, finance_company, sold_type, country, town, requested_by_team, requested_by_person)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        ON CONFLICT (battery_number) DO UPDATE SET
          status            = EXCLUDED.status,
          date_in           = EXCLUDED.date_in,
@@ -239,7 +251,7 @@ app.post("/api/batteries", async (req, res) => {
          updated_at        = NOW()
        RETURNING *`,
       [b.battery_type, b.battery_number, b.status||"New",
-       b.assessment_status||"", b.return_reason||"", b.date_in||null, b.battery_option||""]
+       b.assessment_status||"", b.return_reason||"", b.date_in||null, b.date_dispatched||null, b.client||"", b.dispatch_status||"", b.office_location||"", b.office_purpose||"", b.finance_company||"", b.sold_type||"", b.country||"", b.town||"", b.requested_by_team||"", b.requested_by_person||""]
     );
     res.json(r.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -256,12 +268,21 @@ app.put("/api/batteries/:number", async (req, res) => {
          date_dispatched   = $4,
          assessment_status = $5,
          return_reason     = $6,
+         battery_option    = $7,
+         office_location    = $8,
+         office_purpose     = $9,
+         finance_company    = $10,
+          sold_type          = $11,
+         country           = $12,
+         town              = $13,
+         requested_by_team   = $14,
+         requested_by_person = $15,
          updated_at        = NOW()
-       WHERE battery_number = $7
+       WHERE battery_number = $16
        RETURNING *`,
       [b.status, b.dispatch_status||"", b.client||"",
        b.date_dispatched||null, b.assessment_status||"",
-       b.return_reason||"", req.params.number]
+       b.return_reason||"", b.battery_option||"", b.office_location||"", b.office_purpose||"", b.finance_company||"", b.sold_type||"", b.country||"", b.town||"", b.requested_by_team||"", b.requested_by_person||"", req.params.number]
     );
     if (!r.rows.length) return res.status(404).json({ error: "Battery not found" });
     res.json(r.rows[0]);
@@ -283,8 +304,8 @@ app.post("/api/chargers", async (req, res) => {
   try {
     const r = await pool.query(
       `INSERT INTO chargers
-         (charger_type, charger_number, status, inspection_status, return_reason, date_in)
-       VALUES ($1,$2,$3,$4,$5,$6)
+         (charger_type, charger_number, status, inspection_status, return_reason, date_in,date_dispatched, client, dispatch_status, office_location, office_purpose, finance_company, sold_type, country, town, requested_by_team, requested_by_person)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        ON CONFLICT (charger_number) DO UPDATE SET
          status            = EXCLUDED.status,
          date_in           = EXCLUDED.date_in,
@@ -293,7 +314,7 @@ app.post("/api/chargers", async (req, res) => {
          updated_at        = NOW()
        RETURNING *`,
       [c.charger_type, c.charger_number, c.status||"New",
-       c.inspection_status||"", c.return_reason||"", c.date_in||null]
+       c.inspection_status||"", c.return_reason||"", c.date_in||null, c.date_dispatched||null, c.client||"", c.dispatch_status||"", c.office_location||"", c.office_purpose||"", c.finance_company||"", c.sold_type||"", c.country||"", c.town||"", c.requested_by_team||"", c.requested_by_person||""]
     );
     res.json(r.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -310,12 +331,21 @@ app.put("/api/chargers/:number", async (req, res) => {
          date_dispatched   = $4,
          inspection_status = $5,
          return_reason     = $6,
+         office_location    = $7,
+         office_purpose     = $8,
+         finance_company    = $9,
+         country           = $10,
+         town              = $11,
+         requested_by_team   = $12,
+         requested_by_person = $13,
+         sold_type          = $14,
+         finance_company    = $15,
          updated_at        = NOW()
-       WHERE charger_number = $7
+       WHERE charger_number = $16
        RETURNING *`,
       [c.status, c.dispatch_status||"", c.client||"",
        c.date_dispatched||null, c.inspection_status||"",
-       c.return_reason||"", req.params.number]
+       c.return_reason||"", c.office_location||"",  c.office_purpose||"", c.finance_company||"", c.country||"", c.town||"", c.requested_by_team||"", c.requested_by_person||"", req.params.number]
     );
     if (!r.rows.length) return res.status(404).json({ error: "Charger not found" });
     res.json(r.rows[0]);
