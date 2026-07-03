@@ -191,6 +191,22 @@ tr:hover td{background:#fafbfc}
 .tst-wn{border-left:4px solid var(--warn)}.tst-in{border-left:4px solid var(--info)}
 @keyframes tsIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
 
+/* ════════════════════ TOOLTIPS ════════════════════ */
+.tt{position:relative;cursor:help;border-bottom:1px dashed var(--muted)}
+.tt::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#1e293b;color:#f8fafc;font-size:11px;font-weight:500;
+  padding:5px 10px;border-radius:6px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .15s;z-index:999;
+  font-family:var(--fB);letter-spacing:.2px
+}
+.tt::before{
+  content:'';position:absolute;bottom:calc(100% + 1px);left:50%;
+  transform:translateX(-50%);border:5px solid transparent;
+  border-top-color:#1e293b;opacity:0;pointer-events:none;transition:opacity .15s
+}
+.tt:hover::after,.tt:hover::before{opacity:1}
 /* ════════════════════ MISC ════════════════════ */
 .srch{display:flex;gap:9px;align-items:center;margin-bottom:13px}
 .srch input{max-width:270px}
@@ -215,7 +231,7 @@ tr:hover td{background:#fafbfc}
 <div id="login-pg">
   <div class="lp-card">
     <div class="lp-logo">
-      <img src="/logo.png" class="lp-logo-img" alt="eWAKA" >
+      <img src="/logo.PNG" class="lp-logo-img" alt="eWAKA" >
       <p>Inventory System</p>
     </div>
     <div class="lp-f">
@@ -241,7 +257,7 @@ tr:hover td{background:#fafbfc}
 <!-- ── SIDEBAR ── -->
 <aside class="sb" id="sb">
   <div class="sb-logo">
-    <img src="/logo.png" class="sb-logo-img" alt="eWAKA">
+    <img src="/logo.PNG" class="sb-logo-img" alt="eWAKA">
     <h1>eWAKA Track</h1>
     <p>Inventory System</p>
   </div>
@@ -1150,7 +1166,8 @@ const DB_CONFIG = {
   // user:     '',
   // password: '',
   ssl:      true,
-  api:      window.location.origin + '/api'
+  // api:      window.location.origin + '/api'
+  api:      'http://localhost:3001/api'
   // Auto-detect: works whether opened as file:// or served by Express
   // api: (window.location.protocol === 'file:' ? 'http://localhost:3000/api' : window.location.origin) + '/api'
 };
@@ -1411,6 +1428,7 @@ function toggleAddStatus(){
     document.getElementById('a-chassis-sel-wrap').style.display='';
     document.getElementById('a-bike-cur-loc-wrap').style.display='';
     populateChassisSel('all-dispatched', b);
+    // populateChassisSelRe('all-redispatched', b);
   }
 }
 // Populate the chassis dropdown based on which bikes are relevant
@@ -1443,6 +1461,7 @@ function populateChassisSel(type, bikeType=''){
     </option>`;
   });
 }
+
 
 // Auto-fill info when a bike is selected from the chassis dropdown
 function fillReturnBike(){
@@ -1508,14 +1527,14 @@ function addBike(){
   const inStat=document.getElementById('a-bstat').value;
   const asmStat=document.getElementById('a-assembly').value;
   const retReason=document.getElementById('a-return-reason').value;
-  const cn       = document.getElementById('a-chassis-sel').value;
-
+  const isExisting = (inStat === 'Returned' || inStat === 'Redispatch');
+  const cn = isExisting ? document.getElementById('a-chassis-sel').value : null;
   if(!bt)    return toast('Please select a bike type.','er');
-  if(!cpfx=== 'New')  return toast('Please select a chassis prefix.','er');
-  if(!csfx=== 'New')  return toast('Please enter the remaining chassis digits.','er');
-  if(!din=== 'New')   return toast('Please select a date in.','er');
+  if(!isExisting && !cpfx)  return toast('Please select a chassis prefix.','er');
+  if(!isExisting && !csfx)  return toast('Please enter the remaining chassis digits.','er');
+  if(!isExisting && !din)   return toast('Please select a date in.','er');
   if(!inStat)return toast('Please select a status.','er');
-  if(!cn)      return toast('Please select a bike.','er');
+  if(!cn && (inStat === 'Returned' || inStat === 'Redispatch'))      return toast('Please select a chassis.','er');
   if(inStat==='New'&&!asmStat) return toast('Please select assembly status.','er');
   if(inStat==='Returned'&&!retReason) return toast('Please select a return reason.','er');
   // if(inStat === 'Redispatch') return toast('Please select a bike.','er');
@@ -1525,7 +1544,7 @@ function addBike(){
 
   const data=gd();
   const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
-  if(idx < 0) return toast('Bike not found in inventory.','er');
+  // if(idx < 0) return toast('Bike not found in inventory.','er');
  
 
   const bikeObj={ id:Date.now(), date_in:din, bike_type:bt, chassis_no:chassis, number_plate:plate,
@@ -1542,8 +1561,9 @@ function addBike(){
   }
   sd
   sd(data);
-  DB.put('bikes', cn, data.bikes[idx]);
-  DB.post('bikes', data.bikes[idx>=0?idx:data.bikes.length-1]);
+const key = isExisting ? cn : chassis;
+if(idx >= 0) { DB.put('bikes', key, data.bikes[idx]); }   // update
+else         { DB.post('bikes', bikeObj); }                 
   resetBike();
 }
 
@@ -1643,25 +1663,40 @@ function resetBat(){
 }
 function addBat(){
   const bt=document.getElementById('a-batype').value;
-  const num=document.getElementById('a-banum').value.trim().toUpperCase();
+  const num = document.getElementById('a-banum').value.trim().toUpperCase();
   const stat=document.getElementById('d-battery-status').value;   // FIXED
   const assess=document.getElementById('d-battery-assessment').value;
   const retReason=document.getElementById('d-battery-return').value;
   const din=document.getElementById('a-badate').value;
   const fin=document.getElementById('a-bat-fin-wrap').value;
+  const isExisting = (stat === 'Returned' || stat === 'Redispatch');
+  const cn= isExisting ? document.getElementById('a-bat-sel').value : null;
   if(!bt)   return toast('Please select a battery type.','er');
-  if(!num)  return toast('Please enter a battery number.','er');
-  if(!stat) return toast('Please select a status.','er');
-  if(!din === 'New')  return toast('Please select a date.','er');
+  if(!isExisting && !num)  return toast('Please enter a battery number.','er');
+  if(stat==='New'&&!assess) return toast('Please select an assessment status.','er');
+  if(!isExisting && !din)  return toast('Please select a date.','er');
+  if(!cn && (stat === 'Returned' || stat === 'Redispatch')) return toast('Please select a battery.','er');
+  if(stat==='Returned'&&!retReason) return toast('Please select a return reason.','er');
+  const batno=num.toUpperCase();
+  const finalStatus = stat==='New' ? assess : stat; // Assembled|Unassembled|Returned
   const data=gd();
-  const ex=data.batteries.find(b=>b.battery_number===num);
+  const idx=data.batteries.findIndex(b=>b.battery_number===cn);
+
   const batObj={id:Date.now(),battery_type:bt,battery_number:num,status:stat,
     assessment_status:assess,return_reason:retReason,date_in:din,battery_option:fin,
     date_dispatched:'',client:'',dispatch_status:''};
-  if(ex){ Object.assign(ex,{status:stat,date_in:din,assessment_status:assess,battery_option:fin,return_reason:retReason}); toast(`Battery ${num} updated.`,'wn'); }
-  else { data.batteries.push(batObj); toast(`Battery ${num} added!`,'ok'); }
+  if(idx >= 0){ 
+    Object.assign(data.batteries[idx],{status:stat,finalStatus,date_in:din,assessment_status:assess,battery_option:fin,return_reason:retReason});
+     toast(`Battery ${num} already exists — status updated to ${finalStatus}.`,'wn');}
+     else { data.batteries.push(batObj); toast(`${bt} (${num}) added— ${finalStatus} !`,'ok');
+  }
+  sd
+  const key = isExisting ? cn : num;
   sd(data);
-  DB.post('batteries', ex||batObj);
+  DB.post('batteries', data.batteries[idx] || batObj);
+  resetBat();
+  if(idx >= 0) { DB.put('batteries', key, data.batteries[idx]); }   // update
+else         { DB.post('batteries', batObj); }                 
   resetBat();
 }
 
@@ -1782,6 +1817,7 @@ function resetChg(){
 }
 function addChg(){
   const ct=document.getElementById('a-ctype').value;
+  const isExisting_C = (inStat === 'Returned' || inStat === 'Redispatch');
   const stat=document.getElementById('d-charger-status').value;
   const inspect=document.getElementById('d-charger-assessment').value;
   const retReason=document.getElementById('d-charger-return').value;
@@ -2300,13 +2336,35 @@ function renDash(){
   const types=[...new Set(bikes.map(b=>b.bike_type))];
   const fleet=document.getElementById('d-fleet');
   fleet.innerHTML=!types.length?es('🚲','No fleet data yet.'):
-    `<div class="tw"><table><thead><tr><th>Model</th><th>Total</th><th>Unassembled (New)</th><th>Assembled (New)</th><th>Stock In</th><th>Assembled_Dispatched (Out)</th><th>Faulty/Ret.</th></tr></thead><tbody>
-    ${types.map(t=>{ const tb=bikes.filter(b=>b.bike_type===t); return `<tr>
+    `<div class="tw"><table><thead><tr>
+      <th>Model</th><th>Total</th><th>Unassembled (New)</th><th>Assembled (New)</th>
+      <th><span class="tt" data-tip="New bikes + Returned bikes still in warehouse">Stock In ℹ</span></th>
+      <th><span class="tt" data-tip="Assembled bikes dispatched to clients (Sold, Fleet, Leased, Repaired, At-Dealership)">Dispatched Out ℹ</span></th>
+      <th>Faulty/Ret.</th></tr></thead><tbody>
+        Summary:
+
+
+
+    ${types.map(t=>{ 
+      const tb=bikes.filter(b=>b.bike_type===t); 
+      const stockIn=tb.filter(b=>b.status!=='Dispatched');
+      const dispatched=tb.filter(b=>b.status==='Dispatched');
+      const redispatched=tb.filter(b=>b.status==='Redispatch').length;
+      const newBikes=tb.filter(b=>b.status==='Unassembled'||b.status==='Assembled').length;
+      const returned=tb.filter(b=>b.status==='Returned').length;
+      const dispSold=dispatched.filter(b=>b.dispatch_status==='Sold').length;
+      const dispFleet=dispatched.filter(b=>b.dispatch_status==='Fleet').length;
+      const dispdealer=dispatched.filter(b=>b.dispatch_status==='At-Dealership').length;
+      const dispOther=dispatched.filter(b=>!['Sold','Fleet','At-Dealership'].includes(b.dispatch_status)).length;
+      
+      return `<tr>
       <td><strong>${t}</strong></td><td>${tb.length}</td>
       <td style="background:#B2BEB5;font-weight:700">${tb.filter(b=>b.status==='Unassembled').length}</td>
       <td style="background:#D0F0C0;font-weight:700">${tb.filter(b=>b.status==='Assembled').length}</td>
-      <td style="color:#ecfdf5;background:#15803d;font-weight:700">${tb.filter(b=>b.status!=='Dispatched').length}</td>
-      <td style="color:#ecfdf5;background:#1d4ed8;font-weight:700">${tb.filter(b=>b.status==='Dispatched').length}</td>
+      <td style="color:#ecfdf5;background:#15803d;font-weight:700"><span class="tt" data-tip="New (Unassembled/Assembled): ${newBikes} · Returned: ${returned} · Redispatch: ${redispatched}"
+            style="color:#ecfdf5;font-weight:700">${stockIn.length}</span></td>
+      <td style="color:#ecfdf5;background:#1d4ed8;font-weight:700"><span class="tt" data-tip="Sold: ${dispSold} · Fleet: ${dispFleet} · At-Dealership: ${dispdealer} · Others: ${dispOther}"
+            style="color:#ecfdf5;font-weight:700">${dispatched.length}</span></td>
       <td style="color:#dc2626;background:#fef2f2;border-radius:6px;font-weight:700">${tb.filter(b=>['Faulty','Returned'].includes(b.status)).length}</td>
     </tr>`; }).join('')}</tbody></table></div>`;
     
