@@ -354,7 +354,7 @@ app.put("/api/chargers/:number", async (req, res) => {
 
 // ── Catch-all: send the frontend for any unmatched route ────────────
 app.get("/ip.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "ip.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // ── Start ────────────────────────────────────────────────────────────
