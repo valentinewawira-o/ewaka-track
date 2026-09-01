@@ -36,8 +36,9 @@
   --fB:'DM Sans',sans-serif;--fH:'Syne',sans-serif;--fM:'Space Mono',monospace
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--fB);background:var(--bg);color:var(--txt);display:flex;min-height:100vh;overflow-x:hidden}
+html{scroll-behavior:smooth;height:100%}
+body{font-family:var(--fB);background:var(--bg);color:var(--txt);display:flex;min-height:100vh;width:100%;overflow-x:hidden;margin:0}
+#app,#login-pg{width:100%;min-height:100vh}
 
 /* ════════════════════ SIDEBAR ════════════════════ */
 .sb{width:var(--sb-w);min-height:100vh;background:var(--sb);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;transition:transform .25s ease}
@@ -69,12 +70,14 @@ body{font-family:var(--fB);background:var(--bg);color:var(--txt);display:flex;mi
 .u-out:hover{color:#ef4444}
 
 /* ════════════════════ MAIN ════════════════════ */
-.main{margin-left:var(--sb-w);flex:1;padding:28px 30px;max-width:calc(100vw - var(--sb-w))}
+/* .main{margin-left:var(--sb-w);flex:1;padding:30px 32px;max-width:calc(100vw - var(--sb-w))} */
+.main{margin-left:var(--sb-w);flex:1;padding:30px 32px;width:calc(100vw - var(--sb-w));min-width:0;min-height:100vh;max-width:none}
 .pg{display:none}.pg.on{display:block}
 .ph{margin-bottom:24px}
 .ph .bc{font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.2px}
 .ph h2{font-family:var(--fH);font-size:24px;font-weight:800;color:var(--txt);letter-spacing:-.4px}
 .ph p{font-size:13px;color:var(--muted);margin-top:4px}
+
 
 /* ════════════════════ CARDS ════════════════════ */
 .card{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);box-shadow:var(--sh);padding:20px;margin-bottom:16px}
@@ -214,6 +217,7 @@ tr:hover td{background:#fafbfc}
 .alt-in{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
 .alt-wn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
 .divr{height:1px;background:var(--bdr);margin:16px 0}
+/* ── MOBILE TOGGLE ── */
 .mbt{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--sb);border:none;color:#fff;width:38px;height:38px;border-radius:7px;font-size:17px;cursor:pointer;align-items:center;justify-content:center}
 .ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99}
 @media(max-width:780px){
@@ -223,6 +227,7 @@ tr:hover td{background:#fafbfc}
   .sio-grid{grid-template-columns:1fr 1fr}
   .sg{grid-template-columns:repeat(2,1fr)}
 }
+
 </style>
 </head>
 <body>
@@ -349,8 +354,6 @@ tr:hover td{background:#fafbfc}
   <div class="card"><div class="ct">🔋⚡ Accessories — In / Out by Model</div><div id="d-acc"></div></div> -->
 
 </div>
- 
-</div>  
 <!-- ──────────────────── ADD STOCK ──────────────────── -->
 
 <div class="pg" id="pg-add">
@@ -594,7 +597,6 @@ tr:hover td{background:#fafbfc}
       </div>
     </div>
   </div>
-</div>
 </div>
 
 <!-- ──────────────────── DISPATCH STOCK ──────────────────── -->
@@ -1167,9 +1169,7 @@ const DB_CONFIG = {
   // password: '',
   ssl:      true,
   api:      window.location.origin + '/api'
-  //api:      'http://localhost:3001/api'
-  // Auto-detect: works whether opened as file:// or served by Express
-  // api: (window.location.protocol === 'file:' ? 'http://localhost:3000/api' : window.location.origin) + '/api'
+//   api:      (window.location.protocol === 'file:' ? 'http://localhost:3001/api' : `${window.location.origin}/api`)
 };
 
 // ── DB CLIENT ──────────────────────────────────────────────
@@ -1339,11 +1339,11 @@ function go(pg){
   document.getElementById('pg-'+pg).classList.add('on');
   const ni=document.getElementById('n-'+pg); if(ni) ni.classList.add('on');
   cur=pg; sbClose();
-  if(pg==='dash')  renDash();
+  if(pg==='dash')  requestAnimationFrame(()=>{ if(cur==='dash') renDash(); });
   if(pg==='add')   { setAllDates(); updPfx(); }
-  if(pg==='disp')  { setAllDates(); refreshDispBikeSel(); renDispBkTbl(); renDispBaTbl(); renDispChTbl(); }
-  if(pg==='asm')   { setAllDates(); fillAsmSel(); renAsmTbls(); }
-  if(pg==='rec')   { renBkTbl(); renBaTbl(); renChTbl(); }
+  if(pg==='disp')  { setAllDates(); requestAnimationFrame(()=>{ if(cur!=='disp') return; refreshDispBikeSel(); renDispBkTbl(); renDispBaTbl(); renDispChTbl(); }); }
+  if(pg==='asm')   { setAllDates(); requestAnimationFrame(()=>{ if(cur!=='asm') return; fillAsmSel(); renAsmTbls(); }); }
+  if(pg==='rec')   { requestAnimationFrame(()=>{ if(cur!=='rec') return; renBkTbl(); renBaTbl(); renChTbl(); }); }
 }
 function mbtClick(){ document.getElementById('sb').classList.toggle('open'); document.getElementById('ovl').classList.toggle('show'); }
 function sbClose(){ document.getElementById('sb').classList.remove('open'); document.getElementById('ovl').classList.remove('show'); }
@@ -1453,13 +1453,13 @@ function populateChassisSel(type, bikeType=''){
     sel.innerHTML='<option value="">— No bikes available —</option>';
     return;
   }
-  sel.innerHTML='<option value="">— Choose chassis number —</option>';
-  list.forEach(b=>{
+  const options=list.map(b=>{
     const loc = b.office_location || b.client || '—';
-    sel.innerHTML+=`<option value="${b.chassis_no}">
+    return `<option value="${b.chassis_no}">
       ${b.chassis_no} · ${b.bike_type} · ${b.dispatch_status} · ${b.date_in} @ ${loc}
     </option>`;
-  });
+  }).join('');
+  sel.innerHTML='<option value="">— Choose chassis number —</option>'+options;
 }
 
 
@@ -1559,7 +1559,6 @@ function addBike(){
     data.bikes.push(bikeObj);
     toast(`${bt} (${chassis}) added — ${finalStatus}!`,'ok');
   }
-  sd
   sd(data);
 const key = isExisting ? cn : chassis;
 if(idx >= 0) { DB.put('bikes', key, data.bikes[idx]); }   // update
@@ -1678,7 +1677,7 @@ function addBat(){
   if(!cn && (stat === 'Returned' || stat === 'Redispatch')) return toast('Please select a battery.','er');
   if(stat==='Returned'&&!retReason) return toast('Please select a return reason.','er');
   const batno=num.toUpperCase();
-  const finalStatus = stat==='New' ? assess : stat; // Assembled|Unassembled|Returned
+  const finalStatus = stat==='New' ? 'New' : stat;
   const data=gd();
   const idx=data.batteries.findIndex(b=>b.battery_number===cn);
 
@@ -1686,15 +1685,12 @@ function addBat(){
     assessment_status:assess,return_reason:retReason,date_in:din,battery_option:fin,
     date_dispatched:'',client:'',dispatch_status:''};
   if(idx >= 0){ 
-    Object.assign(data.batteries[idx],{status:stat,finalStatus,date_in:din,assessment_status:assess,battery_option:fin,return_reason:retReason});
+    Object.assign(data.batteries[idx],{status:finalStatus,date_in:din,assessment_status:assess,battery_option:fin,return_reason:retReason});
      toast(`Battery ${num} already exists — status updated to ${finalStatus}.`,'wn');}
      else { data.batteries.push(batObj); toast(`${bt} (${num}) added— ${finalStatus} !`,'ok');
   }
-  sd
   const key = isExisting ? cn : num;
   sd(data);
-  DB.post('batteries', data.batteries[idx] || batObj);
-  resetBat();
   if(idx >= 0) { DB.put('batteries', key, data.batteries[idx]); }   // update
 else         { DB.post('batteries', batObj); }                 
   resetBat();
@@ -1817,7 +1813,6 @@ function resetChg(){
 }
 function addChg(){
   const ct=document.getElementById('a-ctype').value;
-  const isExisting_C = (inStat === 'Returned' || inStat === 'Redispatch');
   const stat=document.getElementById('d-charger-status').value;
   const inspect=document.getElementById('d-charger-assessment').value;
   const retReason=document.getElementById('d-charger-return').value;
@@ -1924,8 +1919,9 @@ function refreshDispBikeSel(){
   const type=document.getElementById('db-type').value;
   const sel=document.getElementById('db-sel');
   const bikes=gd().bikes.filter(b=>b.status !=='Unassembled'&&(!type||b.bike_type===type));
-  sel.innerHTML='<option value="">— Choose chassis number —</option>';
-  bikes.forEach(b=>sel.innerHTML+=`<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}${b.number_plate?' · '+b.number_plate:''}</option>`);
+  sel.innerHTML='<option value="">— Choose chassis number —</option>'+bikes.map(b=>
+    `<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}${b.number_plate?' · '+b.number_plate:''}</option>`
+  ).join('');
   document.getElementById('db-atype').value='';
   document.getElementById('db-plate').value='';
 }
@@ -1985,8 +1981,9 @@ function refreshDispBatSel(){
   const type=document.getElementById('dba-type').value;
   const sel=document.getElementById('dba-sel');
   const bats=gd().batteries.filter(b=>b.status!=='Dispatched'&&(!type||b.battery_type===type));
-  sel.innerHTML='<option value="">— Choose battery number —</option>';
-  bats.forEach(b=>sel.innerHTML+=`<option value="${b.battery_number}">${b.battery_number} · ${b.battery_type} [${b.status}][${b.battery_option}]</option>`);
+  sel.innerHTML='<option value="">— Choose battery number —</option>'+bats.map(b=>
+    `<option value="${b.battery_number}">${b.battery_number} · ${b.battery_type} [${b.status}][${b.battery_option}]</option>`
+  ).join('');
 }
 function toggleBatDisp(){ _showByStatus('dba-',document.getElementById('dba-stat').value); }
 function toggleBatFinance(){
@@ -2041,8 +2038,9 @@ function refreshDispChgSel(){
   const type=document.getElementById('dch-type').value;
   const sel=document.getElementById('dch-sel');
   const chgs=gd().chargers.filter(c=>c.status!=='Dispatched'&&(!type||c.charger_type===type));
-  sel.innerHTML='<option value="">— Choose charger number —</option>';
-  chgs.forEach(c=>sel.innerHTML+=`<option value="${c.charger_number}">${c.charger_number} · ${c.charger_type} [${c.status}]</option>`);
+  sel.innerHTML='<option value="">— Choose charger number —</option>'+chgs.map(c=>
+    `<option value="${c.charger_number}">${c.charger_number} · ${c.charger_type} [${c.status}]</option>`
+  ).join('');
 }
 function toggleChgDisp(){ _showByStatus('dch-',document.getElementById('dch-stat').value); }
 function toggleChgFinance(){
@@ -2142,8 +2140,9 @@ function renDispChTbl(){
 function fillAsmSel(){
   const sel=document.getElementById('as-sel');
   const un=gd().bikes.filter(b=>b.status==='Unassembled');
-  sel.innerHTML='<option value="">— Choose chassis number —</option>';
-  un.forEach(b=>sel.innerHTML+=`<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}</option>`);
+  sel.innerHTML='<option value="">— Choose chassis number —</option>'+un.map(b=>
+    `<option value="${b.chassis_no}">${b.chassis_no} · ${b.bike_type}</option>`
+  ).join('');
 }
 function fillAsm(){
   const cn=document.getElementById('as-sel').value;
@@ -2546,7 +2545,7 @@ function clrRecFilter(){
   ['r-fstat','r-ftype','r-fdfrom','r-fdto'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renBkTbl();
   ['r-ftype-b','r-fdfrom-b','r-fdto-b'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  renBtTbl();
+  renBaTbl();
   ['r-ftype-c','r-fdfrom-c','r-fdto-c'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renChTbl();
   
