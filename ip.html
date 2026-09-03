@@ -89,14 +89,16 @@ body{font-family:var(--fB);background:var(--bg);color:var(--txt);display:flex;mi
 .sio-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .sio-row{display:flex;gap:8px}
 .sio-h{flex:1;text-align:center;padding:10px 6px;border-radius:7px}
-.sio-h.in{background:#f0fdf4}.sio-h.out{background:#eff6ff}
+.sio-h.in{background:#f0fdf4}.sio-h.out{background:#eff6ff}.sio-h.rtn{background:#fef3e7}.sio-h.tot{background:#f3f4f6}
 .sio-n{font-family:var(--fH);font-size:26px;font-weight:800;line-height:1}
-.sio-h.in .sio-n{color:#16a34a}.sio-h.out .sio-n{color:#1d4ed8}
+.sio-h.in .sio-n{color:#218345}.sio-h.out .sio-n{color:#1d4ed8}.sio-h.rtn .sio-n{color:#ce7623}.sio-h.tot .sio-n{color:#6b7280}
 .sio-l{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 .sio-h.in .sio-l{color:#15803d}.sio-h.out .sio-l{color:#1e40af}
 
 /* DISPATCH PILLS */
 .dsp-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.bat-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chgs-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .pill{padding:5px 13px;border-radius:20px;font-size:11.5px;font-weight:600;border:1.5px solid var(--bdr);background:var(--card)}
 .pill span{font-family:var(--fH);font-size:15px;margin-right:4px}
 
@@ -178,6 +180,20 @@ tfoot td{font-weight:700;background:#f9fafb;border-top:2px solid var(--bdr)}
 
 /* ════════════════════ TABLE ════════════════════ */
 .tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bdr)}
+.acc-table{min-width:680px}
+.acc-table thead th{background:#f8fafc;color:#475569;border-bottom:1px solid #dbe3ee}
+.acc-table thead tr:first-child th{font-size:10px;letter-spacing:.8px;text-align:center;border-bottom:0;padding-bottom:5px}
+.acc-table thead tr:first-child th:first-child{text-align:left}
+.acc-table thead tr:last-child th{font-size:9px;padding-top:5px;color:#64748b}
+.acc-table .charger-group,.acc-table .charger-start{border-left:3px solid #f97316}
+.acc-table tbody tr:nth-child(even) td{background:#fbfcfe}
+.acc-table tbody td,.acc-table tfoot td{text-align:center;font-variant-numeric:tabular-nums}
+.acc-table tbody td:first-child,.acc-table tfoot td:first-child{text-align:left}
+.acc-table .metric-in{color:#15803d;font-weight:700}
+.acc-table .metric-rtn{color:#ebb644;font-weight:700}
+.acc-table .metric-out{color:#1d4ed8;font-weight:700}
+.acc-table .metric-total{color:#334155;font-weight:800}
+.acc-table tfoot td{background:#f1f5f9;border-top:2px solid #cbd5e1;font-weight:800}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);background:#f9fafb;border-bottom:1px solid var(--bdr)}
 td{padding:9px 13px;border-bottom:1px solid #f3f4f6;color:var(--txt)}
@@ -309,6 +325,8 @@ tr:hover td{background:#fafbfc}
   <div class="sio-grid" id="sio-grid"></div>
   <!-- DISPATCH BREAKDOWN PILLS -->
   <div class="dsp-pills" id="dsp-pills"></div>
+  <div class="bat-pills" id="bat-pills"></div>
+  <div class="chgs-pills" id="chgs-pills"></div>
   <!-- SUMMARY STAT CARDS -->
   <div class="sg" id="sg"></div>
   <!-- RECENT ACTIVITY -->
@@ -388,6 +406,14 @@ tr:hover td{background:#fafbfc}
             <option value="New">New</option>
             <option value="Returned">Returned</option>
             <option value="Redispatch">Redispatch</option>
+          </select>
+        </div>
+        <div class="fi" id="a-new-wrap" style="display:none">
+          <label>New Stock <span class="req">*</span></label>
+          <select id="new-bstat" onchange="toggleAddNew()">
+            <option value="">— Select Source —</option>
+            <option value="Shipped_In">Shipped_In</option>
+            <option value="From_Dealership">From_Dealership</option>
           </select>
         </div>
         <div class="fi" id="a-asm-wrap" style="display:none">
@@ -639,6 +665,8 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select town —</option>
             <option>Nairobi</option><option>Mombasa</option>
             <option>Kisumu</option><option>Kakamega</option>
+            <option>Migori</option>
+            <option value="other">Other</option>
           </select>
         </div>
         <div class="fi" id="db-other-town-wrap" style="display:none">
@@ -670,6 +698,13 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select status —</option>
             <option>Sold</option><option>Fleet</option><option>Leased</option>
             <option>Repaired</option><option>At-Dealership</option>
+          </select>
+        </div>
+        <div class="fi" id="db-status-wrap" style="display:none">
+          <label>Bike Status <span class="req">*</span></label>
+          <select id="db-new-stat">
+            <option value="">— Select  status —</option>
+            <option>New</option><option>Refurbished</option>
           </select>
         </div>
         <div class="fi fw">
@@ -1168,6 +1203,7 @@ const DB_CONFIG = {
   // user:     '',
   // password: '',
   ssl:      true,
+  // api: 'http://localhost:3001/api'
   api:      window.location.origin + '/api'
 //   api:      (window.location.protocol === 'file:' ? 'http://localhost:3001/api' : `${window.location.origin}/api`)
 };
@@ -1403,20 +1439,20 @@ const PP={ 'Jasiri':['KMGM','KMGT'], 'Shujaa 2.0':[''], 'Shujaa 2.0(v.1)':[''], 
 
 function toggleAddStatus(){
   const b = document.getElementById('a-btype').value;
-  const s = document.getElementById('a-bstat').value;
-  
+  const s = document.getElementById('a-bstat').value;  
   // hide everything first
   ['a-asm-wrap','add-chassis-wrap','a-ret-wrap','a-chassis-sel-wrap','add-date-wrap',
-   'a-bike-cur-loc-wrap'].forEach(id=>{
+   'a-bike-cur-loc-wrap','a-new-wrap'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.style.display='none';
   });
   document.getElementById('a-chassis-sel').innerHTML='<option value="">— Choose chassis number —</option>';
   document.getElementById('a-bike-cur-location').value='';
 
   if(s==='New'){
-    document.getElementById('a-asm-wrap').style.display='';
-    document.getElementById('add-chassis-wrap').style.display = '';
-    document.getElementById('add-date-wrap').style.display = '';
+    // document.getElementById('a-asm-wrap').style.display='';
+    document.getElementById('a-new-wrap').style.display = '';
+    // document.getElementById('add-chassis-wrap').style.display = '';
+    // document.getElementById('add-date-wrap').style.display = '';
   }
   else if(s==='Returned'){
     document.getElementById('a-chassis-sel-wrap').style.display='';
@@ -1432,7 +1468,32 @@ function toggleAddStatus(){
   }
 }
 // Populate the chassis dropdown based on which bikes are relevant
+function toggleAddNew(){
+  const ns = document.getElementById('new-bstat').value;
+  // const s = document.getElementById('a-bstat').value;
+  const b = document.getElementById('a-btype').value;
+  
+  // hide everything first
+  ['a-asm-wrap','add-chassis-wrap','a-ret-wrap','a-chassis-sel-wrap','add-date-wrap',
+   'a-bike-cur-loc-wrap'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  document.getElementById('a-chassis-sel').innerHTML='<option value="">— Choose chassis number —</option>';
+  // document.getElementById('a-bike-cur-location').value='';
 
+
+  if(ns==='From_Dealership'){
+    document.getElementById('a-chassis-sel-wrap').style.display='';
+    document.getElementById('a-bike-cur-loc-wrap').style.display='';
+    populateChassisSel('at-dealership',b);
+  }
+  else if(ns==='Shipped_In'){
+    document.getElementById('a-asm-wrap').style.display='';
+    document.getElementById('add-chassis-wrap').style.display = '';
+    document.getElementById('add-date-wrap').style.display = '';
+  }
+
+}
 function populateChassisSel(type, bikeType=''){
 
   const sel = document.getElementById('a-chassis-sel');
@@ -1440,14 +1501,13 @@ function populateChassisSel(type, bikeType=''){
   let list = [] ;
 
   if(type === 'all-dispatched'){
-    list = bikes.filter(b => b.status === 'Dispatched');
+    list = bikes.filter(b => b.status === 'Dispatched' && (!bikeType || b.bike_type === bikeType)
+  );
   }
-  {
-      list = bikes.filter(b =>
-      b.status === 'Dispatched' && (!bikeType || b.bike_type === bikeType)
+  else if(type === 'at-dealership'){
+    list = bikes.filter(b => b.dispatch_status === 'At-Dealership'&& (!bikeType || b.bike_type === bikeType)
     );
   }
-
 
   if(!list.length){
     sel.innerHTML='<option value="">— No bikes available —</option>';
@@ -1520,6 +1580,7 @@ function resetBike(){
 function addBike(){
   const bt=document.getElementById('a-btype').value;
   const cpfx=document.getElementById('a-cpfx').value;
+  const ns=document.getElementById('new-bstat').value;
   const csfx=document.getElementById('a-csfx').value.trim().toUpperCase();
   const ppfx=document.getElementById('a-ppfx').value;
   const psfx=document.getElementById('a-psfx').value.trim().toUpperCase();
@@ -1527,20 +1588,21 @@ function addBike(){
   const inStat=document.getElementById('a-bstat').value;
   const asmStat=document.getElementById('a-assembly').value;
   const retReason=document.getElementById('a-return-reason').value;
-  const isExisting = (inStat === 'Returned' || inStat === 'Redispatch');
+  const isExisting = (inStat === 'Returned' || inStat === 'Redispatch' || ns === 'From_Dealership');
   const cn = isExisting ? document.getElementById('a-chassis-sel').value : null;
   if(!bt)    return toast('Please select a bike type.','er');
+  if(!isExisting && !ns)    return toast('Please select a new bike status.','er');
   if(!isExisting && !cpfx)  return toast('Please select a chassis prefix.','er');
   if(!isExisting && !csfx)  return toast('Please enter the remaining chassis digits.','er');
   if(!isExisting && !din)   return toast('Please select a date in.','er');
   if(!inStat)return toast('Please select a status.','er');
-  if(!cn && (inStat === 'Returned' || inStat === 'Redispatch'))      return toast('Please select a chassis.','er');
-  if(inStat==='New'&&!asmStat) return toast('Please select assembly status.','er');
+  if(!cn && (inStat === 'Returned' || inStat === 'Redispatch' || ns === 'From_Dealership')) return toast('Please select a chassis.','er');
+  if(!isExisting && !asmStat) return toast('Please select assembly status.','er');
   if(inStat==='Returned'&&!retReason) return toast('Please select a return reason.','er');
   // if(inStat === 'Redispatch') return toast('Please select a bike.','er');
 
   const chassis=cpfx+csfx, plate=ppfx+psfx;
-  const finalStatus = inStat==='New' ? asmStat : inStat; // Assembled|Unassembled|Returned
+  const finalStatus = ns === 'From_Dealership' ? 'Assembled' : (inStat==='New' ? asmStat : inStat);
 
   const data=gd();
   const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
@@ -1548,12 +1610,21 @@ function addBike(){
  
 
   const bikeObj={ id:Date.now(), date_in:din, bike_type:bt, chassis_no:chassis, number_plate:plate,
-    status:finalStatus, dispatch_status:'', sold_type:'', finance_company:'', lease_type:'',
+    status:finalStatus,new_status:ns,  dispatch_status:'', sold_type:'', finance_company:'', lease_type:'',
     client:'', office_location:'', office_purpose:'', technician:'', date_assembled:'',
     assembly_notes:'', date_dispatched:'', return_reason: inStat==='Returned'?retReason:'' };
 
   if(idx>=0){
-    Object.assign(data.bikes[idx],{status:finalStatus,date_in:din,return_reason:bikeObj.return_reason});
+    Object.assign(data.bikes[idx],{
+      bike_type:bt,
+      status:finalStatus,
+      new_status:ns,
+      date_in:din,
+      dispatch_status:'', sold_type:'', finance_company:'', lease_type:'',
+      client:'', office_location:'', office_purpose:'', date_dispatched:'',
+      country:'', town:'', requested_by_team:'', requested_by_person:'',
+      return_reason:bikeObj.return_reason
+    });
     toast(`${chassis} already exists — status updated to ${finalStatus}.`,'wn');
   } else {
     data.bikes.push(bikeObj);
@@ -1854,7 +1925,7 @@ function _hideConditionals(prefix){
 function _showByStatus(prefix, stat){
   _hideConditionals(prefix);
   const show=(...ids)=>ids.forEach(id=>{ const el=document.getElementById(prefix+id); if(el) el.style.display=''; });
-  if(stat==='Sold')     { show('sold-wrap','client-wrap'); }
+  if(stat==='Sold')     { show('status-wrap','sold-wrap','client-wrap'); }
   else if(stat==='Leased')   { show('lease-wrap','client-wrap'); }
   else if(stat==='Repaired') { show('client-wrap'); }
   else if(stat==='At-Dealership'){ show('office-wrap','office-pur-wrap'); }
@@ -1893,6 +1964,7 @@ function toggleCountry(prefix){
   if(c!=='Kenya') { const el=document.getElementById(prefix+'kenya-town'+s); if(el) el.value=''; }
   if(c==='Kenya') { const el=document.getElementById(prefix+'other-town'+s); if(el) el.value=''; }
 }
+
 function toggleReqTeam(prefix){
   const s = _SFX[prefix] || '';
   const t=document.getElementById(prefix+'req-team'+s).value;
@@ -1932,6 +2004,7 @@ function doDispBike(){
   const dd=document.getElementById('db-date').value;
   const stat=document.getElementById('db-stat').value;
   const soldType=document.getElementById('db-sold-type').value;
+  const bikeStatus=document.getElementById('db-new-stat').value;
   const finance=document.getElementById('db-finance').value;
   const leaseType=document.getElementById('db-lease-type').value;
   const client=document.getElementById('db-client').value.trim();
@@ -1941,6 +2014,7 @@ function doDispBike(){
   if(!stat) return toast('Please select a dispatch status.','er');
   if(!dd)   return toast('Please select a dispatch date.','er');
   if(stat==='Sold'&&!soldType)  return toast('Please select sold type.','er');
+  if(stat==='Sold'&&!bikeStatus) return toast('Please select bike status.','er');
   if(stat==='Sold'&&soldType==='Financing'&&!finance) return toast('Please select financing company.','er');
   if(stat==='Leased'&&!leaseType) return toast('Please select leasing type.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
@@ -1955,7 +2029,7 @@ function doDispBike(){
   const data=gd();
   const idx=data.bikes.findIndex(b=>b.chassis_no===cn);
   if(idx<0) return toast('Bike not found!','er');
-  const dispatched={status:'Dispatched',dispatch_status:stat,sold_type:soldType,
+  const dispatched={status:'Dispatched',new_status:bikeStatus,dispatch_status:stat,sold_type:soldType,
     finance_company:finance,lease_type:leaseType,
     client:stat==='At-Dealership'?officeLoc:client,
     office_location:officeLoc,office_purpose:officePur,date_dispatched:dd,
@@ -1969,7 +2043,7 @@ function doDispBike(){
 }
 
 function clrBikeDisp(){
-  ['db-type','db-sel','db-atype','db-plate','db-stat','db-sold-type','db-finance','db-lease-type','db-client','db-office-loc','db-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['db-type','db-sel','db-atype','db-plate','db-stat','db-new-stat','db-sold-type','db-finance','db-lease-type','db-client','db-office-loc','db-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   _hideConditionals('db-');
   document.getElementById('db-date').value=tod();
 }
@@ -1995,10 +2069,14 @@ function doDispBat(){
   const dd=document.getElementById('dba-date').value;
   const client=document.getElementById('dba-client').value.trim();
   const officeLoc=document.getElementById('dba-office-loc').value;
+  const soldType=document.getElementById('dba-sold-type').value;
+  const finance=document.getElementById('dba-finance').value;
   if(!num)  return toast('Please select a battery.','er');
   if(!stat) return toast('Please select a dispatch status.','er');
   if(!dd)   return toast('Please select a dispatch date.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
+  if(stat==='Sold'&&!soldType) return toast('Please select sold type.','er');
+  if(stat==='Sold'&&soldType==='Financing'&&!finance) return toast('Please select financing company.','er');
   if(stat==='At-Dealership'&&!officeLoc) return toast('Please select At-At-DealershiphipLocation.','er');
   const data=gd();
   const idx=data.batteries.findIndex(b=>b.battery_number===num);
@@ -2016,7 +2094,7 @@ function doDispBat(){
   if(!reqBa.requested_by_team) return toast('Please select the requesting team.','er');
   if(['Sales Team','Fleet Team','Technical Team'].includes(reqBa.requested_by_team)&&!reqBa.requested_by_person) return toast('Please enter the persons name.','er');
   if(reqBa.requested_by_team==='Management'&&!reqBa.requested_by_person) return toast('Please select the manager.','er');
-  Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,
+  Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,sold_type:soldType,finance_company:finance,
     client:stat==='At-Dealership'?officeLoc:client,date_dispatched:dd,
     country:locBa.country, town:locBa.town,
     requested_by_team:reqBa.requested_by_team, requested_by_person:reqBa.requested_by_person});
@@ -2052,11 +2130,15 @@ function doDispChg(){
   const dd=document.getElementById('dch-date').value;
   const client=document.getElementById('dch-client').value.trim();
   const officeLoc=document.getElementById('dch-office-loc').value;
+  const soldType=document.getElementById('dch-sold-type').value;
+  const finance=document.getElementById('dch-finance').value;
   const locCh=_getLocation('dch-'), reqCh=_getReqBy('dch-');
   if(!num)  return toast('Please select a charger.','er');
   if(!stat) return toast('Please select a dispatch status.','er');
   if(!dd)   return toast('Please select a dispatch date.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
+  if(stat==='Sold'&&!soldType) return toast('Please select sold type.','er');
+  if(stat==='Sold'&&soldType==='Financing'&&!finance) return toast('Please select financing company.','er');
   if(stat==='At-Dealership'&&!officeLoc) return toast('Please select At-At-DealershiphipLocation.','er');
   const data=gd();
   const idx=data.chargers.findIndex(c=>c.charger_number===num);
@@ -2068,7 +2150,7 @@ function doDispChg(){
   if(!reqCh.requested_by_team) return toast('Please select the requesting team.','er');
   if(['Sales Team','Fleet Team','Technical Team'].includes(reqCh.requested_by_team)&&!reqCh.requested_by_person) return toast('Please enter the person name.','er');
   if(reqCh.requested_by_team==='Management'&&!reqCh.requested_by_person) return toast('Please select the manager.','er');
-  Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,
+  Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,sold_type:soldType,finance_company:finance,
     client:stat==='At-Dealership'?officeLoc:client,date_dispatched:dd,
     country:locCh.country, town:locCh.town,
     requested_by_team:reqCh.requested_by_team, requested_by_person:reqCh.requested_by_person});
@@ -2271,38 +2353,54 @@ function renDash(){
   const bikes=data.bikes, bats=data.batteries, chgs=data.chargers;
 
   // ─── STOCK IN / OUT CARDS ───
-  const bkIn  = bikes.filter(b=>b.status!=='Dispatched').length;
-  const bkOut = bikes.filter(b=>b.status==='Dispatched').length;
-  const baIn  = bats.filter(b=>b.status!=='Dispatched').length;
+  // const bkIn  = bikes.filter(b=>b.status!=='Dispatched').length;
+  const bkIn = bikes.filter(b =>b.status === 'Assembled' || b.status === 'Unassembled').length;
+  const totalBikes = bikes.length;
+  const bkOut = bikes.filter(b=>b.status==='Dispatched'||b.status==='Redispatch').length;
+  const bkrtn = bikes.filter(b=>b.status==='Returned').length;
+  const baIn  = bats.filter(b=>b.status=='New').length;
+  const bartn  = bats.filter(b=>b.status=='Returned').length;
   const baOut = bats.filter(b=>b.status==='Dispatched').length;
-  const chIn  = chgs.filter(c=>c.status!=='Dispatched').length;
+  const totalBats = bats.length;
+  const chIn  = chgs.filter(c=>c.status=='New').length;
   const chOut = chgs.filter(c=>c.status==='Dispatched').length;
+  const chRtn = chgs.filter(c=>c.status==='Returned').length;
+  const totalChgs = chgs.length;
 
   document.getElementById('sio-grid').innerHTML=`
     <div class="sio-card">
       <div class="sio-title">🏍️ Bikes</div>
       <div class="sio-row">
-        <div class="sio-h in"><div class="sio-n">${bkIn}</div><div class="sio-l">In Stock</div></div>
+        <div class="sio-h tot"><div class="sio-n">${totalBikes}</div><div class="sio-l">Total</div></div>
+        <div class="sio-h in"><div class="sio-n">${bkIn}</div><div class="sio-l">New Stock</div></div>
         <div class="sio-h out"><div class="sio-n">${bkOut}</div><div class="sio-l">Dispatched</div></div>
+        <div class="sio-h rtn"><div class="sio-n">${bkrtn}</div><div class="sio-l">Returned</div></div>
+        
       </div>
     </div>
     <div class="sio-card">
       <div class="sio-title">🔋 Batteries</div>
       <div class="sio-row">
-        <div class="sio-h in"><div class="sio-n">${baIn}</div><div class="sio-l">In Warehouse</div></div>
+        <div class="sio-h tot"><div class="sio-n">${totalBats}</div><div class="sio-l">Total</div></div>
+        <div class="sio-h in"><div class="sio-n">${baIn}</div><div class="sio-l">New Stock</div></div>
         <div class="sio-h out"><div class="sio-n">${baOut}</div><div class="sio-l">Dispatched</div></div>
+        <div class="sio-h rtn"><div class="sio-n">${bartn}</div><div class="sio-l">Returned</div></div>
       </div>
     </div>
     <div class="sio-card">
       <div class="sio-title">⚡ Chargers</div>
       <div class="sio-row">
-        <div class="sio-h in"><div class="sio-n">${chIn}</div><div class="sio-l">In Warehouse</div></div>
+        <div class="sio-h tot"><div class="sio-n">${totalChgs}</div><div class="sio-l">Total</div></div>
+        <div class="sio-h in"><div class="sio-n">${chIn}</div><div class="sio-l">New Stock</div></div>
         <div class="sio-h out"><div class="sio-n">${chOut}</div><div class="sio-l">Dispatched</div></div>
+        <div class="sio-h rtn"><div class="sio-n">${chRtn}</div><div class="sio-l">Returned</div></div>
       </div>
     </div>`;
 
   // ─── DISPATCH BREAKDOWN PILLS ───
   const DSTATS=['Sold','Fleet','Leased','At-Dealership'];//'Repaired'
+  const BATSTATS=['Sold','Fleet','Leased','At-Dealership'];//'Repaired'
+  const CHGSTATS=['Sold','Fleet','Leased','At-Dealership'];//'Repaired'
   const pillHtml=DSTATS.map(ds=>{
     const n=bikes.filter(b=>b.dispatch_status===ds).length;
     return n>0?`<div class="pill"><span>${n}</span>${ds}</div>`:null;
@@ -2310,6 +2408,23 @@ function renDash(){
   document.getElementById('dsp-pills').innerHTML = pillHtml.length
     ? `<span style="font-size:11px;color:var(--muted);font-weight:600;align-self:center">Bikes out by type:</span>${pillHtml.join('')}`
     : '';
+    const batHtml=BATSTATS.map(ds=>{
+    const n=bats.filter(b=>b.dispatch_status===ds).length;
+    return n>0?`<div class="pill"><span>${n}</span>${ds}</div>`:null;
+  }).filter(Boolean);
+  document.getElementById('bat-pills').innerHTML = batHtml.length
+    ? `<span style="font-size:11px;color:var(--muted);font-weight:600;align-self:center">Batteries out by type:</span>${batHtml.join('')}`
+    : '';
+  const chgHtml=CHGSTATS.map(ds=>{
+    const n=chgs.filter(c=>c.dispatch_status===ds).length;
+    return n>0?`<div class="pill"><span>${n}</span>${ds}</div>`:null;
+  }).filter(Boolean);
+  document.getElementById('chgs-pills').innerHTML = chgHtml.length
+    ? `<span style="font-size:11px;color:var(--muted);font-weight:600;align-self:center">Chargers out by type:</span>${chgHtml.join('')}`
+    : '';
+
+
+
 
   // ─── SUMMARY STAT CARDS ───
   const un=bikes.filter(b=>b.status==='Unassembled').length;
@@ -2350,6 +2465,7 @@ function renDash(){
       const dispatched=tb.filter(b=>b.status==='Dispatched');
       const redispatched=tb.filter(b=>b.status==='Redispatch').length;
       const newBikes=tb.filter(b=>b.status==='Unassembled'||b.status==='Assembled').length;
+      const newStock=tb.filter(b=>b.new_stock===1).length;
       const returned=tb.filter(b=>b.status==='Returned').length;
       const dispSold=dispatched.filter(b=>b.dispatch_status==='Sold').length;
       const dispFleet=dispatched.filter(b=>b.dispatch_status==='Fleet').length;
@@ -2375,33 +2491,23 @@ function renDash(){
   const rows=accTypes.map(t=>{
     const tb=bats.filter(b=>b.battery_type===t);
     const tc=chgs.filter(c=>c.charger_type===t);
-    const bi=tb.filter(b=>b.status!=='Dispatched').length, bo=tb.filter(b=>b.status==='Dispatched').length;
-    const ci=tc.filter(c=>c.status!=='Dispatched').length, co=tc.filter(c=>c.status==='Dispatched').length;
+    const bn=tb.filter(b=>b.status==='New').length, br=tb.filter(b=>b.status==='Returned').length, bd=tb.filter(b=>b.status==='Dispatched').length;
+    const cn=tc.filter(c=>c.status==='New').length, cr=tc.filter(c=>c.status==='Returned').length, cd=tc.filter(c=>c.status==='Dispatched').length;
     return `<tr><td><strong>${t}</strong></td>
-      <td style="color:#16a34a;font-weight:700">${bi}</td>
-      <td style="color:#1d4ed8;font-weight:700">${bo}</td>
-      <td style="color:#16a34a;font-weight:700">${ci}</td>
-      <td style="color:#1d4ed8;font-weight:700">${co}</td>
-      <td>${bi+bo}</td><td>${ci+co}</td></tr>`;
+      <td class="metric-total">${tb.length}</td><td class="metric-in">${bn}</td><td class="metric-rtn">${br}</td><td class="metric-out">${bd}</td>
+      <td class="metric-total charger-start">${tc.length}</td><td class="metric-in">${cn}</td><td class="metric-rtn">${cr}</td><td class="metric-out">${cd}</td></tr>`;
   });
-  const totBatIn=bats.filter(b=>b.status!=='Dispatched').length, totBatOut=baOut;
-  const totChgIn=chgs.filter(c=>c.status!=='Dispatched').length, totChgOut=chOut;
-  acc.innerHTML=`<div class="tw"><table>
-    <thead><tr>
-      <th>Model</th>
-      <th>🔋 Bats In</th><th>🔋 Bats Out</th>
-      <th>⚡ Chgs In</th><th>⚡ Chgs Out</th>
-      <th>Total Bats</th><th>Total Chgs</th>
+  const totBatNew=bats.filter(b=>b.status==='New').length, totBatReturned=bats.filter(b=>b.status==='Returned').length, totBatDispatched=bats.filter(b=>b.status==='Dispatched').length;
+  const totChgNew=chgs.filter(c=>c.status==='New').length, totChgReturned=chgs.filter(c=>c.status==='Returned').length, totChgDispatched=chgs.filter(c=>c.status==='Dispatched').length;
+  acc.innerHTML=`<div class="tw"><table class="acc-table">
+    <thead><tr><th rowspan="2">Model</th><th colspan="4">🔋 Batteries</th><th colspan="4" class="charger-group">⚡ Chargers</th></tr><tr>
+      <th>Total</th><th>New Stock</th><th>Returned</th><th>Dispatched</th><th class="charger-start">Total</th><th>New Stock</th><th>Returned</th><th>Dispatched</th>
     </tr></thead>
     <tbody>${rows.join('')}</tbody>
-    <tfoot style="background:#f9fafb"><tr>
+    <tfoot><tr>
       <td><strong>Total</strong></td>
-      <td style="color:#16a34a;font-weight:800">${totBatIn}</td>
-      <td style="color:#1d4ed8;font-weight:800">${totBatOut}</td>
-      <td style="color:#16a34a;font-weight:800">${totChgIn}</td>
-      <td style="color:#1d4ed8;font-weight:800">${totChgOut}</td>
-      <td><strong>${bats.length}</strong></td>
-      <td><strong>${chgs.length}</strong></td>
+      <td class="metric-total">${bats.length}</td><td class="metric-in">${totBatNew}</td><td class="metric-rtn">${totBatReturned}</td><td class="metric-out">${totBatDispatched}</td>
+      <td class="metric-total charger-start">${chgs.length}</td><td class="metric-in">${totChgNew}</td><td class="metric-rtn">${totChgReturned}</td><td class="metric-out">${totChgDispatched}</td>
     </tr></tfoot>
   </table></div>`;
 }
