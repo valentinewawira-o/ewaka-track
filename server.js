@@ -119,10 +119,10 @@ app.post("/api/bikes", async (req, res) => {
   try {
     const r = await pool.query(
       `INSERT INTO bikes
-         (date_in, bike_type, chassis_no, number_plate, status, dispatch_status,
+         (date_in, bike_type, new_stock,chassis_no, number_plate, status, dispatch_status,
           sold_type, finance_company, lease_type, client, office_location, office_purpose,
           technician, date_assembled, assembly_notes, date_dispatched, return_reason,country,town,requested_by_team,requested_by_person)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
        ON CONFLICT (chassis_no) DO UPDATE SET
          status        = EXCLUDED.status,
          date_in       = EXCLUDED.date_in,
@@ -133,6 +133,7 @@ app.post("/api/bikes", async (req, res) => {
       [
         b.date_in        || null,
         b.bike_type,
+        b.new_stock      || 0,
         b.chassis_no,
         b.number_plate   || "",
         b.status         || "Unassembled",
@@ -188,8 +189,9 @@ app.put("/api/bikes/:chassis", async (req, res) => {
          town              = $16,
          requested_by_team   = $17,
          requested_by_person = $18,
+         new_stock           = $19,
          updated_at      = NOW()
-       WHERE chassis_no = $19
+       WHERE chassis_no = $20
        RETURNING *`,
       [
         b.status,
@@ -210,6 +212,7 @@ app.put("/api/bikes/:chassis", async (req, res) => {
         b.town           || "",
         b.requested_by_team   || "",
         b.requested_by_person || "",
+        b.new_stock           || 0,
         req.params.chassis
       ]
     );
@@ -339,13 +342,12 @@ app.put("/api/chargers/:number", async (req, res) => {
          requested_by_team   = $12,
          requested_by_person = $13,
          sold_type          = $14,
-         finance_company    = $15,
          updated_at        = NOW()
-       WHERE charger_number = $16
+       WHERE charger_number = $15
        RETURNING *`,
       [c.status, c.dispatch_status||"", c.client||"",
        c.date_dispatched||null, c.inspection_status||"",
-       c.return_reason||"", c.office_location||"",  c.office_purpose||"", c.finance_company||"", c.country||"", c.town||"", c.requested_by_team||"", c.requested_by_person||"", req.params.number]
+      c.return_reason||"", c.office_location||"", c.office_purpose||"", c.finance_company||"", c.country||"", c.town||"", c.requested_by_team||"", c.requested_by_person||"", c.sold_type||"", req.params.number]
     );
     if (!r.rows.length) return res.status(404).json({ error: "Charger not found" });
     res.json(r.rows[0]);
