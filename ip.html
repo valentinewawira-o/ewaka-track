@@ -752,7 +752,7 @@ tr:hover td{background:#fafbfc}
           <label>At-Dealership Location <span class="req">*</span></label>
           <select id="db-office-loc">
             <option value="">— Select At-Dealership Location —</option>
-            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option>
+            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option><option>Migori</option>
           </select>
         </div>
         <div class="fi" id="db-office-pur-wrap" style="display:none">
@@ -799,6 +799,7 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select town —</option>
             <option>Nairobi</option><option>Mombasa</option>
             <option>Kisumu</option><option>Kakamega</option>
+            <option>Migori</option>
           </select>
         </div>
         <div class="fi" id="dba-other-town-wrap-ba" style="display:none">
@@ -915,6 +916,7 @@ tr:hover td{background:#fafbfc}
             <option value="">— Select town —</option>
             <option>Nairobi</option><option>Mombasa</option>
             <option>Kisumu</option><option>Kakamega</option>
+            <option>Migori</option>
           </select>
         </div>
         <div class="fi" id="dch-other-town-wrap-ch" style="display:none">
@@ -984,7 +986,7 @@ tr:hover td{background:#fafbfc}
           <label>At-At-DealershiphipLocation <span class="req">*</span></label>
           <select id="dch-office-loc">
             <option value="">— Select —</option>
-            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option><option></option>
+            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option><option>Migori</option>
           </select>
         </div>
         <div class="fi" id="dch-office-pur-wrap" style="display:none">
@@ -1203,8 +1205,8 @@ const DB_CONFIG = {
   // user:     '',
   // password: '',
   ssl:      true,
-  // api: 'http://localhost:3001/api'
-  api:      window.location.origin + '/api'
+  api: 'http://localhost:3001/api'
+  // api:      window.location.origin + '/api'
 //   api:      (window.location.protocol === 'file:' ? 'http://localhost:3001/api' : `${window.location.origin}/api`)
 };
 
@@ -1885,7 +1887,7 @@ function resetChg(){
 function addChg(){
   const ct=document.getElementById('a-ctype').value;
   const stat=document.getElementById('d-charger-status').value;
-  const inspect=document.getElementById('d-charger-assessment').value;
+  const inspect=document.getElementById('d-charger-assessment')?.value||'';
   const retReason=document.getElementById('d-charger-return').value;
   const din=document.getElementById('a-cdate').value;
   const selectedCharger=document.getElementById('a-chg-sel').value;
@@ -1905,7 +1907,8 @@ function addChg(){
   if(ex){ Object.assign(ex,{charger_type:ct,status:stat,date_in:din,inspection_status:inspect,return_reason:retReason}); toast(`Charger ${num} updated.`,'wn'); }
   else { data.chargers.push(chgObj); toast(`Charger ${num} added!`,'ok'); }
   sd(data);
-  DB.post('chargers', ex||chgObj);
+  if(ex) DB.put('chargers', num, data.chargers.find(c=>c.charger_number===num));
+  else DB.post('chargers', chgObj);
   resetChg();
 }
 
