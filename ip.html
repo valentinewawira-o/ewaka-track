@@ -84,13 +84,13 @@ body{font-family:var(--fB);background:var(--bg);color:var(--txt);display:flex;mi
 .ct{font-family:var(--fH);font-size:14px;font-weight:700;margin-bottom:14px;color:var(--txt);display:flex;align-items:center;gap:7px}
 
 /* ════════════════════ STOCK IN/OUT CARDS ════════════════════ */
-.sio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
+.sio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px}
 .sio-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
 .sio-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .sio-row{display:flex;gap:8px}
 .sio-h{flex:1;text-align:center;padding:10px 6px;border-radius:7px}
 .sio-h.in{background:#f0fdf4}.sio-h.out{background:#eff6ff}.sio-h.rtn{background:#fef3e7}.sio-h.tot{background:#f3f4f6}
-.sio-n{font-family:var(--fH);font-size:26px;font-weight:800;line-height:1}
+.sio-n{font-family:var(--fH);font-size:22px;font-weight:600;line-height:1}
 .sio-h.in .sio-n{color:#218345}.sio-h.out .sio-n{color:#1d4ed8}.sio-h.rtn .sio-n{color:#ce7623}.sio-h.tot .sio-n{color:#6b7280}
 .sio-l{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 .sio-h.in .sio-l{color:#15803d}.sio-h.out .sio-l{color:#1e40af}
@@ -265,7 +265,6 @@ tr:hover td{background:#fafbfc}
     </div>
     <button class="lp-btn" onclick="doLogin()">Sign In →</button>
     <div class="lp-err" id="lp-err">❌ Invalid username or password</div>
-    <!-- <div class="lp-hint">Demo accounts:<br><strong>admin</strong> / admin123 &nbsp;·&nbsp; <strong>staff</strong> / staff2025</div> -->
   </div>
 </div>
 
@@ -833,6 +832,13 @@ tr:hover td{background:#fafbfc}
             <option>Repaired</option><option>At-Dealership</option>
           </select>
         </div>
+        <div class="fi" id="dba-status-wrap" style="display:none">
+          <label>Battery Status <span class="req">*</span></label>
+          <select id="dba-new-stat">
+            <option value="">— Select status —</option>
+            <option>New</option><option>Refurbished</option>
+          </select>
+        </div>
         <div class="fi fw">
           <label>Select Battery <span class="req">*</span></label>
           <select id="dba-sel">
@@ -869,7 +875,12 @@ tr:hover td{background:#fafbfc}
           <label>At-Dealership Location <span class="req">*</span></label>
           <select id="dba-office-loc">
             <option value="">— Select —</option>
-            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option>
+            <option>Kileleshwa</option>
+            <option>Kisumu</option>
+            <option>Migori</option>
+            <option>Mombasa</option><option>Burundi</option>
+            <option>Rwanda</option>
+
           </select>
         </div>
         <div class="fi" id="dba-office-pur-wrap" style="display:none">
@@ -950,6 +961,13 @@ tr:hover td{background:#fafbfc}
             <option>Repaired</option><option>At-Dealership</option>
           </select>
         </div>
+        <div class="fi" id="dch-status-wrap" style="display:none">
+          <label>Charger Status <span class="req">*</span></label>
+          <select id="dch-new-stat">
+            <option value="">— Select status —</option>
+            <option>New</option><option>Refurbished</option>
+          </select>
+        </div>
         <div class="fi fw">
           <label>Select Charger <span class="req">*</span></label>
           <select id="dch-sel">
@@ -986,7 +1004,12 @@ tr:hover td{background:#fafbfc}
           <label>At-At-DealershiphipLocation <span class="req">*</span></label>
           <select id="dch-office-loc">
             <option value="">— Select —</option>
-            <option>Kileleshwa</option><option>Kisumu</option><option>Mombasa</option><option>Burundi</option><option>Rwanda</option><option>Migori</option>
+            <option>Kileleshwa</option>
+            <option>Kisumu</option>
+            <option>Mombasa</option>
+            <option>Burundi</option>
+            <option>Rwanda</option>
+            <option>Migori</option>
           </select>
         </div>
         <div class="fi" id="dch-office-pur-wrap" style="display:none">
@@ -1262,21 +1285,24 @@ function dbRetry(){ DB.retry(); }
 // ══════════════════════════════════════════════════════════════
 //  AUTH
 // ══════════════════════════════════════════════════════════════
-const USERS=[
-  {u:'admin',   p:'inventory@2025',  name:'Admin User',       role:'Admin'},
-  {u:'staff',   p:'staff2025', name:'Inventory Staff',  role:'Staff'}
-];
 const SESS_KEY='ewaka_sess';
 const SESS_TTL=8*60*60*1000; // 8 hours
 
-function doLogin(){
+async function doLogin(){
   const u=document.getElementById('lp-user').value.trim();
   const p=document.getElementById('lp-pass').value;
-  const found=USERS.find(x=>x.u===u&&x.p===p);
-  if(!found){ document.getElementById('lp-err').style.display='block'; return; }
-  document.getElementById('lp-err').style.display='none';
-  localStorage.setItem(SESS_KEY,JSON.stringify({...found,ts:Date.now()}));
-  showApp(found);
+  try{
+    const r=await fetch(`${DB_CONFIG.api}/auth/login`,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})
+    });
+    if(!r.ok) throw new Error('Invalid credentials');
+    const found=await r.json();
+    document.getElementById('lp-err').style.display='none';
+    localStorage.setItem(SESS_KEY,JSON.stringify({...found,ts:Date.now()}));
+    showApp(found);
+  }catch{
+    document.getElementById('lp-err').style.display='block';
+  }
 }
 function getSession(){
   try{
@@ -1323,7 +1349,6 @@ function normRow(r){
   DATE_FIELDS.forEach(f=>{ if(out[f]) out[f]=String(out[f]).split('T')[0]; });
   return out;
 }
-
 // Pull all records from the DB, overwrite localStorage, refresh the UI
 async function syncFromDB(){
   if(!DB.live){ toast('Offline — using local cache','wn'); return; }
@@ -2073,12 +2098,14 @@ function doDispBat(){
   const client=document.getElementById('dba-client').value.trim();
   const officeLoc=document.getElementById('dba-office-loc').value;
   const soldType=document.getElementById('dba-sold-type').value;
+  const batteryStatus=document.getElementById('dba-new-stat').value;
   const finance=document.getElementById('dba-finance').value;
   if(!num)  return toast('Please select a battery.','er');
   if(!stat) return toast('Please select a dispatch status.','er');
   if(!dd)   return toast('Please select a dispatch date.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
   if(stat==='Sold'&&!soldType) return toast('Please select sold type.','er');
+  if(stat==='Sold'&&!batteryStatus) return toast('Please select battery status.','er');
   if(stat==='Sold'&&soldType==='Financing'&&!finance) return toast('Please select financing company.','er');
   if(stat==='At-Dealership'&&!officeLoc) return toast('Please select At-At-DealershiphipLocation.','er');
   const data=gd();
@@ -2097,7 +2124,7 @@ function doDispBat(){
   if(!reqBa.requested_by_team) return toast('Please select the requesting team.','er');
   if(['Sales Team','Fleet Team','Technical Team'].includes(reqBa.requested_by_team)&&!reqBa.requested_by_person) return toast('Please enter the persons name.','er');
   if(reqBa.requested_by_team==='Management'&&!reqBa.requested_by_person) return toast('Please select the manager.','er');
-  Object.assign(data.batteries[idx],{status:'Dispatched',dispatch_status:stat,sold_type:soldType,finance_company:finance,
+  Object.assign(data.batteries[idx],{status:'Dispatched',new_status:batteryStatus,dispatch_status:stat,sold_type:soldType,finance_company:finance,
     client:stat==='At-Dealership'?officeLoc:client,date_dispatched:dd,
     country:locBa.country, town:locBa.town,
     requested_by_team:reqBa.requested_by_team, requested_by_person:reqBa.requested_by_person});
@@ -2107,7 +2134,7 @@ function doDispBat(){
   clrBatDisp(); refreshDispBatSel(); renDispBaTbl(); renDashDispatches();
 }
 function clrBatDisp(){
-  ['dba-type','dba-sel','dba-stat','dba-sold-type','dba-finance','dba-lease-type','dba-client','dba-office-loc','dba-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['dba-type','dba-sel','dba-stat','dba-new-stat','dba-sold-type','dba-finance','dba-lease-type','dba-client','dba-office-loc','dba-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   _hideConditionals('dba-');
   document.getElementById('dba-date').value=tod();
 }
@@ -2134,6 +2161,7 @@ function doDispChg(){
   const client=document.getElementById('dch-client').value.trim();
   const officeLoc=document.getElementById('dch-office-loc').value;
   const soldType=document.getElementById('dch-sold-type').value;
+  const chargerStatus=document.getElementById('dch-new-stat').value;
   const finance=document.getElementById('dch-finance').value;
   const locCh=_getLocation('dch-'), reqCh=_getReqBy('dch-');
   if(!num)  return toast('Please select a charger.','er');
@@ -2141,6 +2169,7 @@ function doDispChg(){
   if(!dd)   return toast('Please select a dispatch date.','er');
   if(['Sold','Leased','Repaired'].includes(stat)&&!client) return toast('Please enter a client name.','er');
   if(stat==='Sold'&&!soldType) return toast('Please select sold type.','er');
+  if(stat==='Sold'&&!chargerStatus) return toast('Please select charger status.','er');
   if(stat==='Sold'&&soldType==='Financing'&&!finance) return toast('Please select financing company.','er');
   if(stat==='At-Dealership'&&!officeLoc) return toast('Please select At-At-DealershiphipLocation.','er');
   const data=gd();
@@ -2153,7 +2182,7 @@ function doDispChg(){
   if(!reqCh.requested_by_team) return toast('Please select the requesting team.','er');
   if(['Sales Team','Fleet Team','Technical Team'].includes(reqCh.requested_by_team)&&!reqCh.requested_by_person) return toast('Please enter the person name.','er');
   if(reqCh.requested_by_team==='Management'&&!reqCh.requested_by_person) return toast('Please select the manager.','er');
-  Object.assign(data.chargers[idx],{status:'Dispatched',dispatch_status:stat,sold_type:soldType,finance_company:finance,
+  Object.assign(data.chargers[idx],{status:'Dispatched',new_status:chargerStatus,dispatch_status:stat,sold_type:soldType,finance_company:finance,
     client:stat==='At-Dealership'?officeLoc:client,date_dispatched:dd,
     country:locCh.country, town:locCh.town,
     requested_by_team:reqCh.requested_by_team, requested_by_person:reqCh.requested_by_person});
@@ -2163,7 +2192,7 @@ function doDispChg(){
   clrChgDisp(); refreshDispChgSel(); renDispChTbl(); renDashDispatches();
 }
 function clrChgDisp(){
-  ['dch-type','dch-sel','dch-stat','dch-sold-type','dch-finance','dch-lease-type','dch-client','dch-office-loc','dch-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['dch-type','dch-sel','dch-stat','dch-new-stat','dch-sold-type','dch-finance','dch-lease-type','dch-client','dch-office-loc','dch-office-pur'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   _hideConditionals('dch-');
   document.getElementById('dch-date').value=tod();
 }
@@ -2201,9 +2230,9 @@ function renDispBaTbl(){
   //   ${rows.map(b=>`<tr><td class="mn">${b.battery_number}</td><td>${b.battery_type}</td>
   //   <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.client||'—'}</td><td>${b.date_dispatched||'—'}</td></tr>`).join('')}
   // </tbody></table>`;
-   w.innerHTML=`<table><thead><tr><th>Battery No.</th><th>Type</th><th>Dispatch</th><th>Country</th><th>Town</th><th>Client</th><th>Requested By</th><th>Date Out</th></tr></thead><tbody>
+  w.innerHTML=`<table><thead><tr><th>Battery No.</th><th>Type</th><th>Sales Status</th><th>Dispatch</th><th>Country</th><th>Town</th><th>Client</th><th>Requested By</th><th>Date Out</th></tr></thead><tbody>
     ${rows.map(b=>`<tr><td class="mn">${b.battery_number}</td><td>${b.battery_type}</td>
-    <td>${dispStatBdg(b.dispatch_status)}</td><td>${b.country||'—'}</td><td>${b.town||'—'}</td>
+   <td>${b.new_status||'—'}</td><td>${dispStatBdg(b.dispatch_status)}</td><td>${b.country||'—'}</td><td>${b.town||'—'}</td>
     <td>${b.client||'—'}</td><td>${b.requested_by_person?b.requested_by_person+' ('+b.requested_by_team+')':b.requested_by_team||'—'}</td>
     <td>${b.date_dispatched||'—'}</td></tr>`).join('')}
   </tbody></table>`;
@@ -2213,9 +2242,9 @@ function renDispChTbl(){
   const rows=gd().chargers.filter(c=>c.status==='Dispatched').filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q));
   const w=document.getElementById('dr-chtbl');
   if(!rows.length){ w.innerHTML=es('⚡','No dispatched chargers yet.'); return; }
-  w.innerHTML=`<table><thead><tr><th>Charger No.</th><th>Type</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
+  w.innerHTML=`<table><thead><tr><th>Charger No.</th><th>Type</th><th>Sales Status</th><th>Dispatch Type</th><th>Client</th><th>Date Out</th></tr></thead><tbody>
     ${rows.map(c=>`<tr><td class="mn">${c.charger_number}</td><td>${c.charger_type}</td>
-    <td>${dispStatBdg(c.dispatch_status)}</td><td>${c.client||'—'}</td><td>${c.date_dispatched||'—'}</td></tr>`).join('')}
+    <td>${c.new_status||'—'}</td><td>${dispStatBdg(c.dispatch_status)}</td><td>${c.client||'—'}</td><td>${c.date_dispatched||'—'}</td></tr>`).join('')}
   </tbody></table>`;
 }
 
@@ -2683,9 +2712,9 @@ function xport(type){
   let csv=null, fn='';
   if(type==='bikes')           { csv=toCSV(data.bikes,['date_in','bike_type','chassis_no','number_plate','status','dispatch_status','sold_type','finance_company','lease_type','client','office_location','office_purpose','technician','date_assembled','date_dispatched','return_reason']); fn='bikes_inventory.csv'; }
   else if(type==='dispatched-bikes'){ csv=toCSV(data.bikes.filter(b=>b.status==='Dispatched'),['chassis_no','bike_type','number_plate','dispatch_status','sold_type','finance_company','lease_type','client','office_location','date_dispatched']); fn='dispatched_bikes.csv'; }
-  else if(type==='batteries')  { csv=toCSV(data.batteries,['date_in','battery_type','battery_number','status','assessment_status','return_reason','battery_option','date_dispatched','client','dispatch_status']); fn='batteries_inventory.csv'; }
+  else if(type==='batteries')  { csv=toCSV(data.batteries,['date_in','battery_type','battery_number','status','new_status','assessment_status','return_reason','battery_option','date_dispatched','client','dispatch_status']); fn='batteries_inventory.csv'; }
   else if(type==='dispatched-bats'){ csv=toCSV(data.batteries.filter(b=>b.status==='Dispatched'),['battery_number','battery_type','dispatch_status','client','date_dispatched']); fn='dispatched_batteries.csv'; }
-  else if(type==='chargers')   { csv=toCSV(data.chargers,['date_in','charger_type','charger_number','status','inspection_status','return_reason','date_dispatched','client','dispatch_status']); fn='chargers_inventory.csv'; }
+  else if(type==='chargers')   { csv=toCSV(data.chargers,['date_in','charger_type','charger_number','status','new_status','inspection_status','return_reason','date_dispatched','client','dispatch_status']); fn='chargers_inventory.csv'; }
   else if(type==='dispatched-chgs'){ csv=toCSV(data.chargers.filter(c=>c.status==='Dispatched'),['charger_number','charger_type','dispatch_status','client','date_dispatched']); fn='dispatched_chargers.csv'; }
   else if(type==='all'){ dnld(URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),'ewaka_backup.json'); return toast('Full JSON backup exported!','ok'); }
   if(!csv) return toast('No data to export.','wn');
@@ -2738,14 +2767,14 @@ function parseCsvImport(csv,type){
     } else if(type==='batteries'){
       if(!row.battery_number) continue;
       const idx=data.batteries.findIndex(b=>b.battery_number===row.battery_number);
-      const bat={id:Date.now()+i,date_in:row.date_in||'',battery_type:row.battery_type||'',battery_option:row.battery_option||'',battery_number:row.battery_number,
+      const bat={id:Date.now()+i,date_in:row.date_in||'',battery_type:row.battery_type||'',battery_option:row.battery_option||'',battery_number:row.battery_number,new_status:row.new_status||'',
         status:row.status||'New',assessment_status:row.assessment_status||'',return_reason:row.return_reason||'',
         date_dispatched:row.date_dispatched||'',client:row.client||'',dispatch_status:row.dispatch_status||''};
       if(idx>=0){ Object.assign(data.batteries[idx],bat); updated++; } else { data.batteries.push(bat); added++; }
     } else if(type==='chargers'){
       if(!row.charger_number) continue;
       const idx=data.chargers.findIndex(c=>c.charger_number===row.charger_number);
-      const chg={id:Date.now()+i,date_in:row.date_in||'',charger_type:row.charger_type||'',charger_number:row.charger_number,
+      const chg={id:Date.now()+i,date_in:row.date_in||'',charger_type:row.charger_type||'',charger_number:row.charger_number,new_status:row.new_status||'',
         status:row.status||'New',inspection_status:row.inspection_status||'',return_reason:row.return_reason||'',
         date_dispatched:row.date_dispatched||'',client:row.client||'',dispatch_status:row.dispatch_status||''};
       if(idx>=0){ Object.assign(data.chargers[idx],chg); updated++; } else { data.chargers.push(chg); added++; }
